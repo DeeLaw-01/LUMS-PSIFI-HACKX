@@ -2,10 +2,11 @@ import { useAuthStore } from '@/store/useAuthStore'
 import { UserCircle, Briefcase, BookMarked, Users2 } from 'lucide-react'
 import CreatePost from '@/Components/CreatePost'
 import Feed from '@/Components/Feed'
+
 import { Button } from '@/Components/ui/button.tsx'
 
 const HomePage = () => {
-  const { user } = useAuthStore()
+  const { user, setUser } = useAuthStore()
 
   return (
     <div className='max-w-[1440px] mx-auto px-4 pt-20 lg:px-8 h-screen mt-10'>
@@ -48,10 +49,22 @@ const HomePage = () => {
             </div>
           </div>
           <Button
+            className='text-white'
             onClick={() => {
               console.log(user)
             }}
-          ></Button>
+          >
+            {' '}
+            CLICK TO LOG USER
+          </Button>
+          <Button
+            className='text-white'
+            onClick={() => {
+              setUser(null)
+            }}
+          >
+            CLICK TO LOG OUT
+          </Button>
 
           {/* Quick Links */}
           <div className='bg-primary-800 backdrop-blur-sm border border-slate-800 rounded-lg p-4'>
