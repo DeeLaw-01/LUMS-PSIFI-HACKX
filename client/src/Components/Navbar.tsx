@@ -1,44 +1,87 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Menu, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   return (
-    <nav className="bg-slate-900 p-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo */}
-        <div className="text-blue-400 font-bold text-2xl">
-          <a href="/">Logo</a>
-        </div>
-
-        {/* Search Bar */}
-        <div className="flex-grow max-w-lg">
-          <input
-            type="text"
-            placeholder="Search..."
-            className="w-full px-4 py-2 bg-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        {/* Navigation Links & User Profile Picture */}
-        <div className="flex items-center space-x-6">
-          {/* Page Links */}
-          <div className="flex space-x-6 text-slate-400">
-            <a href="/" className="hover:text-blue-400">Home</a>
-            <a href="/contact" className="hover:text-blue-400">Contact</a>
-            <a href="/about" className="hover:text-blue-400">About</a>
+    <>
+      <nav className="bg-slate-900 p-4 fixed top-0 w-full z-40">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          {/* Logo */}
+          <div className="text-blue-400 font-bold text-2xl">
+            <Link to="/">Logo</Link>
           </div>
 
-          {/* User Profile Picture */}
-          <div className="relative">
+          {/* Mobile Menu Icon */}
+          <div className="lg:hidden">
+            <button onClick={toggleMobileMenu} className="text-white">
+              {isMobileMenuOpen ? (
+                <X className="w-8 h-8" />
+              ) : (
+                <Menu className="w-8 h-8" />
+              )}
+            </button>
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center space-x-6">
+            <div className="flex space-x-6 text-slate-400">
+              <Link to="/" className="hover:text-blue-400">Home</Link>
+              <Link to="/contact" className="hover:text-blue-400">Contact</Link>
+              <Link to="/about" className="hover:text-blue-400">About</Link>
+            </div>
             <img
               src="https://via.placeholder.com/40"
               alt="User Profile"
               className="w-10 h-10 rounded-full border-2 border-blue-400"
             />
-            {/* You can add a dropdown or a menu next to the user icon if needed */}
           </div>
         </div>
+      </nav>
+
+      {/* Mobile Menu Overlay */}
+      <div
+        className={`
+          fixed top-[64px] left-0 right-0 bottom-0 bg-slate-900 z-30
+          transform transition-transform duration-300 ease-in-out
+          ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}
+          lg:hidden flex items-start pt-6
+        `}
+      >
+        <div className="flex flex-col items-center space-y-6 w-full px-6">
+          <Link 
+            to="/" 
+            className="text-slate-200 text-xl font-medium hover:text-blue-400 transition-colors
+                     border-y border-slate-700 py-3 hover:border-blue-400 w-full text-center"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Home
+          </Link>
+          <Link 
+            to="/contact" 
+            className="text-slate-200 text-xl font-medium hover:text-blue-400 transition-colors
+                     border-y border-slate-700 py-3 hover:border-blue-400 w-full text-center"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Contact
+          </Link>
+          <Link 
+            to="/about" 
+            className="text-slate-200 text-xl font-medium hover:text-blue-400 transition-colors
+                     border-y border-slate-700 py-3 hover:border-blue-400 w-full text-center"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            About
+          </Link>
+        </div>
       </div>
-    </nav>
+    </>
   );
 };
 

@@ -2,14 +2,18 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/useAuthStore'
 import AuthPage from '@/Pages/Auth/LoginPage'
 import HomePage from '@/Pages/HomePage'
+import Navbar from './Components/Navbar'
+import Footer from './Components/Footer'
 
 export default function App () {
   const { user } = useAuthStore()
 
   return (
-    <Routes>
-      {/* Public Routes */}
-      <Route
+    <>
+      <Navbar />
+      <Routes>
+        {/* Public Routes */}
+        <Route
         path='/auth'
         element={!user ? <AuthPage /> : <Navigate to='/' replace />}
       />
@@ -23,5 +27,7 @@ export default function App () {
       {/* Catch all - redirect to home */}
       <Route path='*' element={<Navigate to='/' replace />} />
     </Routes>
+    <Footer />
+  </>
   )
 }
