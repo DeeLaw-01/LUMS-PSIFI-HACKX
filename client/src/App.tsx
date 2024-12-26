@@ -3,7 +3,7 @@ import { Toaster } from '@/Components/ui/toaster.tsx'
 
 import { useAuthStore } from '@/store/useAuthStore'
 import AuthPage from '@/Pages/Auth/LoginPage'
-import HomePage from '@/Pages/HomePage'
+import HomePage from '@/Pages/HomePage/HomePage.tsx'
 import Navbar from './Components/Navbar'
 import Footer from './Components/Footer'
 
@@ -12,6 +12,7 @@ export default function App () {
 
   return (
     <>
+      <Navbar />
       <Routes>
         {/* Public Routes */}
         <Route
@@ -29,6 +30,7 @@ export default function App () {
         <Route path='*' element={<Navigate to='/' replace />} />
       </Routes>
       <Toaster />
+      <Footer />
     </>
   )
 }
