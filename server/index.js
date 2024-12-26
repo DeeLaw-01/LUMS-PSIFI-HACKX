@@ -4,7 +4,7 @@ import mongoose from 'mongoose'
 import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import authRoutes from './routes/authRoutes.js'
-import passport from 'passport'
+
 
 dotenv.config()
 
