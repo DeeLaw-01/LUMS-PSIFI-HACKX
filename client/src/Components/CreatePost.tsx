@@ -31,7 +31,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
         <div className='flex justify-between items-center mt-2'>
           <button
             type='button'
-            className='text-slate-400 hover:text-blue-400 transition-colors'
+            className='text-white hover:text-blue-400 transition-colors'
           >
             <ImageIcon className='w-6 h-6' />
           </button>

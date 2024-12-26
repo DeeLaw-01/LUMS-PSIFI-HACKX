@@ -110,7 +110,7 @@ const Navbar = () => {
       {/* Mobile Menu Overlay */}
       <div
         className={`
-          fixed top-[73px] left-0 right-0 bottom-0 bg-slate-900/95 backdrop-blur-sm z-30
+          fixed top-[73px] left-0 right-0 bottom-0 bg-primary-800 backdrop-blur-sm z-30
           transform transition-transform duration-300 ease-in-out
           ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}
           lg:hidden
@@ -118,7 +118,7 @@ const Navbar = () => {
       >
         {/* User Profile Section - Mobile */}
         {user && (
-          <div className='px-6 py-4 border-b border-slate-800 flex items-center space-x-4'>
+          <div className='px-6 py-4 border-b border-red-500 flex items-center space-x-4'>
             {user.profilePicture ? (
               <img
                 src={user.profilePicture}
