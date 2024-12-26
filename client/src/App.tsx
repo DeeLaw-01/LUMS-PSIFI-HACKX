@@ -11,7 +11,7 @@ export default function App () {
 
   return (
     <>
-      log in:
+      login
       <GoogleLogin
         onSuccess={credentialResponse => {
           handleGoogleSuccess(credentialResponse)
