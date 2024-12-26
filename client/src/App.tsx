@@ -1,6 +1,27 @@
-import LoginPage from './Pages/Auth/LoginPage'
-import './index.css'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { useAuthStore } from '@/store/useAuthStore'
+import AuthPage from '@/Pages/Auth/LoginPage'
+import HomePage from '@/Pages/HomePage'
 
 export default function App () {
-  return <LoginPage />
+  const { user } = useAuthStore()
+
+  return (
+    <Routes>
+      {/* Public Routes */}
+      <Route
+        path='/auth'
+        element={!user ? <AuthPage /> : <Navigate to='/' replace />}
+      />
+
+      {/* Protected Routes */}
+      <Route
+        path='/'
+        element={user ? <HomePage /> : <Navigate to='/auth' replace />}
+      />
+
+      {/* Catch all - redirect to home */}
+      <Route path='*' element={<Navigate to='/' replace />} />
+    </Routes>
+  )
 }
