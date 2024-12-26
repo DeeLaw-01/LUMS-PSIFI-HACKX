@@ -1,25 +1,8 @@
-import { GoogleLogin } from '@react-oauth/google'
+import LoginPage from './Pages/Auth/LoginPage'
+import './index.css'
 
-export default function App () {
-  const handleGoogleSuccess = async (credentialResponse: any) => {
-    console.log('SUCCESS RESPONSE:', credentialResponse)
-  }
-
-  const handleGoogleFailure = () => {
-    console.log('an error occured')
-  }
-
+export default function App() {
   return (
-    <>
-      log in:
-      <GoogleLogin
-        onSuccess={credentialResponse => {
-          handleGoogleSuccess(credentialResponse)
-        }}
-        onError={() => {
-          handleGoogleFailure()
-        }}
-      />
-    </>
+    <LoginPage />
   )
 }
