@@ -141,8 +141,8 @@ const Navbar = () => {
             <button
               key={item}
               onClick={() => {
-                navigate(`/${item.toLowerCase()}`)
-                setIsMobileMenuOpen(false)
+                navigate(`/${item.toLowerCase()}`);
+                setIsMobileMenuOpen(false);
               }}
               className='w-full text-left text-slate-200 text-lg font-medium 
                        hover:text-blue-400 transition-colors py-3 px-4 rounded-lg
