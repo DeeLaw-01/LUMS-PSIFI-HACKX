@@ -10,7 +10,6 @@ import postRoutes from './routes/postRoutes.js'
 import startupRoutes from './routes/startupRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 
-
 dotenv.config()
 
 const app = express()
@@ -52,8 +51,8 @@ app.get('/', (req, res) => {
   res.send('Server is running!')
 })
 
-app.use('/api/users', userRoutes);
-app.use('/api/startups', startupRoutes);
+app.use('/api/users', userRoutes)
+app.use('/api/startups', startupRoutes)
 
 const PORT = process.env.PORT || 4000
 app.listen(PORT, () => {

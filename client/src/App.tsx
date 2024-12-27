@@ -22,38 +22,36 @@ export default function App () {
   const showFooter = !FOOTER_EXCLUDED_ROUTES.includes(location.pathname)
 
   return (
-    <div className='min-h-screen flex pb-8'>
+    <div className='min-h-screen  pb-8'>
       <RouteScrollToTop />
       {showNavbar && <Navbar />}
-      <div className='flex-1'>
-        <Routes>
-          {/* Public Routes */}
-          <Route
-            path='/auth'
-            element={!user ? <AuthPage /> : <Navigate to='/' replace />}
-          />
+      <Routes>
+        {/* Public Routes */}
+        <Route
+          path='/auth'
+          element={!user ? <AuthPage /> : <Navigate to='/' replace />}
+        />
 
-          {/* Protected Routes */}
-          <Route
-            path='/'
-            element={user ? <HomePage /> : <Navigate to='/auth' replace />}
-          />
-          <Route
-            path='/saved'
-            element={user ? <SavedPosts /> : <Navigate to='/auth' replace />}
-          />
-          <Route
-            path="/dashboard"
-            element={user ? <UserDashboard /> : <Navigate to="/auth" replace />}
-          />
+        {/* Protected Routes */}
+        <Route
+          path='/'
+          element={user ? <HomePage /> : <Navigate to='/auth' replace />}
+        />
+        <Route
+          path='/saved'
+          element={user ? <SavedPosts /> : <Navigate to='/auth' replace />}
+        />
+        <Route
+          path='/dashboard'
+          element={user ? <UserDashboard /> : <Navigate to='/auth' replace />}
+        />
 
-          {/* Catch all - redirect to home */}
-          <Route path='*' element={<Navigate to='/' replace />} />
-        </Routes>
-      </div>
+        {/* Catch all - redirect to home */}
+        <Route path='*' element={<Navigate to='/' replace />} />
+      </Routes>
       <Toaster />
-      {showFooter && <Footer />}
       <ScrollToTop />
+      {showFooter && <Footer />}
     </div>
   )
 }

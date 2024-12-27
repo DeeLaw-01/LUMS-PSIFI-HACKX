@@ -107,7 +107,8 @@ const SavedPosts = () => {
               comments: post.comments,
               isLiked: isPostLiked(post),
               isSaved: isPostSaved(post),
-              isOwnPost: user ? post.author._id === user._id : false
+              isOwnPost: user ? post.author._id === user._id : false,
+              images: post.images
             }}
             onLike={() => handlePostLiked(post._id)}
             onComment={content => handlePostComment(post._id, content)}

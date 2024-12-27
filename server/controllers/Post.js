@@ -465,3 +465,36 @@ export const getReplies = async (req, res) => {
     res.status(500).json({ message: error.message })
   }
 }
+
+// Get posts by user ID
+export const getPostsByUser = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 10
+    const skip = (page - 1) * limit
+    const userId = req.params.userId
+
+    // Get paginated posts for specific user
+    const posts = await Post.find({ author: userId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate('author', 'username profilePicture')
+      .populate('likes', 'username')
+      .populate('comments.author', 'username profilePicture')
+      .populate('savedBy', 'username')
+
+    // Get total count of user's posts
+    const total = await Post.countDocuments({ author: userId })
+
+    res.json({
+      posts,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalPosts: total
+    })
+  } catch (error) {
+    console.error('Get posts by user error:', error)
+    res.status(500).json({ message: error.message })
+  }
+}

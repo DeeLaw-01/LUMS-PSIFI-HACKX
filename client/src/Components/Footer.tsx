@@ -10,7 +10,7 @@ const Footer = () => {
           {/* Logo & Description */}
           <div className='flex flex-col space-y-4'>
             <div className='text-2xl font-bold text-blue-400'>
-              <Link to='/'>Logo</Link>
+              <Link to='/'>SparkUp</Link>
             </div>
             <p className='text-sm text-slate-400'>
               We are a cutting-edge startup platform that connects like-minded

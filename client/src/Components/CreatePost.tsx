@@ -1,11 +1,14 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   ImageIcon,
   Eye,
   EyeOff,
   HelpCircle,
   PenSquare,
-  Code
+  Code,
+  Loader2,
+  Trash2,
+  Upload
 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -16,8 +19,15 @@ import { Button } from '@/Components/ui/button'
 import { useAuthStore } from '../store/useAuthStore'
 import { cn } from '@/lib/utils'
 import { Modal } from './ui/Modal'
-import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import axios from 'axios'
+import imageCompression from 'browser-image-compression'
+import { useToast } from '@/hooks/use-toast'
+import SparklesText from './ui/sparkles-text.tsx'
+
+const CLOUDINARY_UPLOAD_PRESET = 'ylmqjrhi'
+const CLOUDINARY_CLOUD_NAME = 'drqdsjywx'
+const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`
 
 interface CreatePostProps {
   onPostCreated: (post: any) => void
@@ -145,18 +155,25 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
   const [showHelp, setShowHelp] = useState(false)
   const [showHelpRaw, setShowHelpRaw] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [addedPhotos, setAddedPhotos] = useState<string[]>([])
+  const [isUploading, setIsUploading] = useState(false)
   const { user } = useAuthStore()
+  const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (content.trim() && !isLoading) {
       try {
         setIsLoading(true)
-        const newPost = await postService.createPost({ content })
+        const newPost = await postService.createPost({
+          content,
+          images: addedPhotos
+        })
 
         onPostCreated(newPost)
 
         setContent('')
+        setAddedPhotos([])
         setShowPreview(false)
         setIsModalOpen(false)
 
@@ -167,6 +184,84 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
         setIsLoading(false)
       }
     }
+  }
+
+  const uploadSingleImage = async (file: File) => {
+    const data = new FormData()
+    data.append('file', file)
+    data.append('upload_preset', CLOUDINARY_UPLOAD_PRESET)
+
+    const res = await axios.post(CLOUDINARY_UPLOAD_URL, data, {
+      withCredentials: false
+    })
+
+    return res.data.secure_url
+  }
+
+  const validateFiles = (files: FileList) => {
+    const MAX_PHOTOS = 5
+    const MAX_FILE_SIZE = 7 * 1024 * 1024
+
+    if (files.length + addedPhotos.length > MAX_PHOTOS) {
+      throw new Error(`You can only upload ${MAX_PHOTOS} photos`)
+    }
+
+    for (let i = 0; i < files.length; i++) {
+      if (files[i].size > MAX_FILE_SIZE) {
+        throw new Error('File size should not exceed 7MB')
+      }
+      if (!files[i].type.startsWith('image/')) {
+        throw new Error('Uploaded file is not an image')
+      }
+    }
+  }
+
+  const compressImage = async (file: File) => {
+    const options = {
+      maxSizeMB: 0.5,
+      maxWidthOrHeight: 1000,
+      useWebWorker: true
+    }
+    try {
+      return await imageCompression(file, options)
+    } catch (error) {
+      console.error('Error occurred while compressing image', error)
+      return file
+    }
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return
+    setIsUploading(true)
+    try {
+      const files = e.target.files
+
+      validateFiles(files)
+
+      const compressedFiles = await Promise.all(
+        Array.from(files).map(compressImage)
+      )
+
+      const urls = await Promise.all(compressedFiles.map(uploadSingleImage))
+
+      toast({
+        title: 'Photos uploaded successfully',
+        description: 'You can now add more photos or submit your post'
+      })
+      setAddedPhotos(prev => [...prev, ...urls])
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive'
+      })
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const removePhoto = (url: string) => {
+    setAddedPhotos(prev => prev.filter(photo => photo !== url))
   }
 
   useEffect(() => {
@@ -188,13 +283,13 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
     <>
       <motion.div
         onClick={handleOpenModal}
-        whileHover={{ scale: 1.02 }}
+        whileHover={{ scale: 1.003 }}
         whileTap={{ scale: 0.98 }}
-        className='bg-primary-800 backdrop-blur-sm rounded-lg border border-primary-600 p-4 text-white cursor-pointer hover:border-red-500 transition-colors'
+        className='bg-primary-800  backdrop-blur-sm rounded-lg border border-primary-600 p-4 text-white cursor-pointer hover:border-red-500 transition-colors'
       >
         <div className='flex items-center gap-3 text-gray-400'>
           <PenSquare className='w-5 h-5' />
-          <span>Create a post...</span>
+          <SparklesText text='Create a post...' className='text-sm' />
         </div>
       </motion.div>
 
@@ -242,67 +337,62 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
                     remarkPlugins={[remarkGfm]}
                     rehypePlugins={[rehypeRaw, rehypeSanitize]}
                     className='break-words'
-                    components={{
-                      a: ({ node, ...props }) => (
-                        <a
-                          {...props}
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-blue-400 hover:text-blue-300 transition-colors'
-                        />
-                      ),
-                      code: ({ node, className, children, ...props }: any) => {
-                        const match = /language-(\w+)/.exec(className || '')
-                        return (
-                          <code
-                            {...props}
-                            className={cn(
-                              'bg-primary-700 rounded px-1.5 py-0.5',
-                              !props.inline &&
-                                'block p-4 overflow-x-auto font-base',
-                              className
-                            )}
-                          >
-                            {children}
-                          </code>
-                        )
-                      },
-                      pre: ({ node, ...props }) => (
-                        <pre
-                          {...props}
-                          className='bg-primary-700 rounded-lg p-4 overflow-x-auto'
-                        />
-                      ),
-                      img: ({ node, ...props }) => (
-                        <img
-                          {...props}
-                          className='max-w-full h-auto rounded-lg'
-                          loading='lazy'
-                        />
-                      ),
-                      blockquote: ({ node, ...props }) => (
-                        <blockquote
-                          {...props}
-                          className='border-l-4 border-primary-600 pl-4 italic'
-                        />
-                      )
-                    }}
                   >
                     {content || '*Preview empty*'}
                   </ReactMarkdown>
                 </motion.div>
               )}
 
+              <div className='mt-4 space-y-2'>
+                <div className='flex flex-wrap gap-2'>
+                  {addedPhotos.map(url => (
+                    <div key={url} className='relative w-24 h-24'>
+                      <img
+                        src={url}
+                        alt='Uploaded'
+                        className='w-full h-full object-cover rounded-lg'
+                      />
+                      <button
+                        type='button'
+                        onClick={() => removePhoto(url)}
+                        className='absolute top-1 right-1 p-1 bg-red-500 rounded-full hover:bg-red-600 transition-colors'
+                      >
+                        <Trash2 className='w-4 h-4 text-white' />
+                      </button>
+                    </div>
+                  ))}
+                  {addedPhotos.length < 5 && (
+                    <label className='w-24 h-24 flex flex-col items-center justify-center border border-slate-700 rounded-lg cursor-pointer hover:border-red-500 transition-colors'>
+                      <input
+                        type='file'
+                        multiple
+                        className='hidden'
+                        onChange={handleImageUpload}
+                        disabled={isUploading}
+                        accept='image/*'
+                      />
+                      {isUploading ? (
+                        <Loader2 className='w-6 h-6 animate-spin text-red-500' />
+                      ) : (
+                        <>
+                          <Upload className='w-6 h-6 text-red-500' />
+                          <span className='text-xs text-gray-400 mt-1'>
+                            Upload
+                          </span>
+                        </>
+                      )}
+                    </label>
+                  )}
+                </div>
+                {addedPhotos.length > 0 && (
+                  <p className='text-xs text-gray-400'>
+                    {addedPhotos.length}/5 photos added
+                  </p>
+                )}
+              </div>
+
               <div className='flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-2 mt-4'>
                 <div className='flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start'>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className='text-white hover:text-red-400 transition-colors'
-                    disabled={isLoading}
-                  >
-                    <ImageIcon className='w-6 h-6' />
-                  </motion.button>
                   <button
                     type='button'
                     className={cn(
@@ -332,7 +422,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
                 </div>
                 <Button
                   type='submit'
-                  disabled={!content.trim() || isLoading}
+                  disabled={!content.trim() || isLoading || isUploading}
                   className='bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto'
                 >
                   {isLoading ? 'Posting...' : 'Post'}

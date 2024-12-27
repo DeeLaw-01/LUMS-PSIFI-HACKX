@@ -14,7 +14,8 @@ import {
   likeComment,
   replyToComment,
   likeReply,
-  getReplies
+  getReplies,
+  getPostsByUser
 } from '../controllers/Post.js'
 
 const router = express.Router()
@@ -24,6 +25,7 @@ router.post('/', verifyToken, createPost)
 router.get('/', getPosts)
 router.get('/saved', verifyToken, getSavedPosts)
 router.get('/:id', getPost)
+router.get('/user/:id', getPostsByUser)
 router.get('/:id/comments', getComments)
 router.put('/:id', verifyToken, updatePost)
 router.delete('/:id', verifyToken, deletePost)
