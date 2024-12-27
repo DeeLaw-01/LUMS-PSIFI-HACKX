@@ -1,12 +1,55 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Menu, X, Search, PlusSquare, UserCircle } from 'lucide-react'
+import {
+  Menu,
+  X,
+  Search,
+  PlusSquare,
+  UserCircle,
+  LogOut,
+  LayoutDashboard
+} from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
-  const { user } = useAuthStore()
+  const { user, setUser } = useAuthStore()
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsProfileDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  function logout () {
+    setUser(null)
+    navigate('/')
+  }
+
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'auto'
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto'
+    }
+  }, [isMobileMenuOpen])
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -15,6 +58,17 @@ const Navbar = () => {
   const navigateToProfile = () => {
     navigate('/profile')
     setIsMobileMenuOpen(false)
+  }
+
+  const handleLogout = () => {
+    logout()
+    setIsProfileDropdownOpen(false)
+    navigate('/')
+  }
+
+  // Update profile click handler
+  const toggleProfileDropdown = () => {
+    setIsProfileDropdownOpen(!isProfileDropdownOpen)
   }
 
   return (
@@ -26,7 +80,7 @@ const Navbar = () => {
             className='text-blue-400 font-bold text-2xl cursor-pointer'
             onClick={() => navigate('/')}
           >
-            StartupConnect
+            SparkUp
           </div>
 
           {/* Search Bar - Desktop */}
@@ -88,20 +142,54 @@ const Navbar = () => {
               </button>
             </div>
 
-            {/* User Profile Section */}
-            <div
-              onClick={navigateToProfile}
-              className='cursor-pointer flex items-center space-x-3 hover:opacity-80 transition-opacity'
-            >
-              {user?.profilePicture ? (
-                <img
-                  src={user.profilePicture}
-                  alt={user.username}
-                  className='w-9 h-9 rounded-full border-2 border-red-500/50'
-                />
-              ) : (
-                <UserCircle className='w-9 h-9 text-slate-300' />
-              )}
+            {/* User Profile Section with Dropdown */}
+            <div className='relative' ref={dropdownRef}>
+              <div
+                onClick={toggleProfileDropdown}
+                className='cursor-pointer flex items-center space-x-3 hover:opacity-80 transition-opacity'
+              >
+                {user?.profilePicture ? (
+                  <img
+                    src={user.profilePicture}
+                    alt={user.username}
+                    className='w-9 h-9 rounded-full border-2 border-red-500/50'
+                  />
+                ) : (
+                  <UserCircle className='w-9 h-9 text-slate-300' />
+                )}
+              </div>
+
+              <AnimatePresence>
+                {isProfileDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className='absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-primary-800 border border-slate-700'
+                  >
+                    <div className='py-1'>
+                      <button
+                        onClick={() => {
+                          navigate('/dashboard')
+                          setIsProfileDropdownOpen(false)
+                        }}
+                        className='flex items-center w-full px-4 py-2 text-sm text-slate-300 hover:bg-primary-700 hover:text-slate-100'
+                      >
+                        <LayoutDashboard className='w-4 h-4 mr-2' />
+                        Dashboard
+                      </button>
+                      <button
+                        onClick={handleLogout}
+                        className='flex items-center w-full px-4 py-2 text-sm text-red-500 hover:bg-primary-700 hover:text-red-400'
+                      >
+                        <LogOut className='w-4 h-4 mr-2' />
+                        Logout
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>

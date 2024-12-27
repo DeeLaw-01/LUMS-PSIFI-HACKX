@@ -1,7 +1,6 @@
 import User from '../models/User.js'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
-import { OAuth2Client } from 'google-auth-library'
 
 export const register = async (req, res) => {
   try {
@@ -97,9 +96,19 @@ export const verifyGoogleToken = async (req, res) => {
         email,
         username,
         password: jwt.sign({ google: true }, process.env.JWT_SECRET), // placeholder password
-        profilePicture
+        profilePicture: profilePicture?.replace('=s96-c', '=s400-c') // Get larger image
       })
       await user.save()
+    } else {
+      // Update existing user's profile picture if it's from Google
+      if (
+        profilePicture &&
+        (!user.profilePicture ||
+          user.profilePicture.includes('googleusercontent.com'))
+      ) {
+        user.profilePicture = profilePicture.replace('=s96-c', '=s400-c')
+        await user.save()
+      }
     }
 
     // Create token
@@ -109,10 +118,13 @@ export const verifyGoogleToken = async (req, res) => {
 
     res.json({
       user: {
-        id: user._id,
+        _id: user._id,
         username: user.username,
         email: user.email,
-        profilePicture: user.profilePicture
+        profilePicture: user.profilePicture,
+        bio: user.bio,
+        startup: user.startup,
+        position: user.position
       },
       token
     })

@@ -1,15 +1,15 @@
 import { useAuthStore } from '@/store/useAuthStore'
-import { UserCircle, Briefcase, BookMarked, Users2 } from 'lucide-react'
-import CreatePost from '@/Components/CreatePost'
-import Feed from '@/Components/Feed'
+import { Briefcase, BookMarked, Users2 } from 'lucide-react'
 
+import Feed from '@/Components/Feed'
+import ProfileImage from '@/Components/ProfileImage'
 import { Button } from '@/Components/ui/button.tsx'
 
 const HomePage = () => {
   const { user, setUser } = useAuthStore()
 
   return (
-    <div className='max-w-[1440px] mx-auto px-4 pt-20 lg:px-8 h-screen mt-10'>
+    <div className='max-w-[1440px] mx-auto px-4 pt-20 lg:px-8 min-h-screen mt-10'>
       <div className='grid grid-cols-1 lg:grid-cols-12 gap-5'>
         {/* Left Sidebar */}
         <div className='hidden lg:block lg:col-span-3 space-y-5'>
@@ -18,15 +18,12 @@ const HomePage = () => {
             <div className='h-16 bg-gradient-to-tr from-red-500 to-red-600'></div>
             <div className='p-4 -mt-8'>
               <div className='flex justify-center'>
-                {user?.profilePicture ? (
-                  <img
-                    src={user.profilePicture}
-                    alt={user.username}
-                    className='w-20 h-20 rounded-full border-4 border-slate-900'
-                  />
-                ) : (
-                  <UserCircle className='w-20 h-20 text-slate-300 bg-slate-800 rounded-full border-4 border-slate-900' />
-                )}
+                <ProfileImage
+                  src={user?.profilePicture}
+                  alt={user?.username || 'User'}
+                  size='lg'
+                  className='border-4 border-slate-900'
+                />
               </div>
               <div className='text-center mt-2'>
                 <h2 className='text-lg font-semibold text-white'>
@@ -48,44 +45,27 @@ const HomePage = () => {
               </div>
             </div>
           </div>
-          <Button
-            className='text-white'
-            onClick={() => {
-              console.log(user)
-            }}
-          >
-            {' '}
-            CLICK TO LOG USER
-          </Button>
-          <Button
-            className='text-white'
-            onClick={() => {
-              setUser(null)
-            }}
-          >
-            CLICK TO LOG OUT
-          </Button>
 
           {/* Quick Links */}
           <div className='bg-primary-800 backdrop-blur-sm border border-slate-800 rounded-lg p-4'>
             <div className='space-y-3'>
               <a
-                href='#'
-                className='flex items-center text-slate-300 hover:text-blue-400 transition-colors'
+                href='/saved'
+                className='flex items-center text-slate-300 hover:text-red-400 transition-colors'
               >
                 <BookMarked className='w-5 h-5 mr-2' />
-                <span>My items</span>
+                <span>Saved posts</span>
               </a>
               <a
                 href='#'
-                className='flex items-center text-slate-300 hover:text-blue-400 transition-colors'
+                className='flex items-center text-slate-300 hover:text-red-400 transition-colors'
               >
                 <Users2 className='w-5 h-5 mr-2' />
                 <span>My network</span>
               </a>
               <a
                 href='#'
-                className='flex items-center text-slate-300 hover:text-blue-400 transition-colors'
+                className='flex items-center text-slate-300 hover:text-red-400 transition-colors'
               >
                 <Briefcase className='w-5 h-5 mr-2' />
                 <span>Jobs</span>
@@ -96,7 +76,6 @@ const HomePage = () => {
 
         {/* Main Content */}
         <main className='lg:col-span-6 space-y-4'>
-          <CreatePost onPostCreated={content => console.log(content)} />
           <Feed />
         </main>
 
@@ -127,7 +106,7 @@ const HomePage = () => {
             <div className='space-y-4'>
               {[1, 2, 3].map((_, i) => (
                 <div key={i} className='flex items-center space-x-3'>
-                  <UserCircle className='w-10 h-10 text-slate-300' />
+                  <ProfileImage alt='Suggested User' size='sm' />
                   <div className='flex-1'>
                     <h3 className='text-sm font-medium text-slate-200'>
                       John Doe
