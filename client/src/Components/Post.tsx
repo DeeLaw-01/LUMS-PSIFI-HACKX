@@ -444,7 +444,7 @@ const Post = ({ post, onLike, onDelete, onComment, onSave }: PostProps) => {
   return (
     <>
       <div
-        className='bg-primary-800 backdrop-blur-sm border border-primary-600 rounded-lg p-4 
+        className='dark:bg-primary-800 bg-white backdrop-blur-sm border border-primary-600 rounded-lg p-4 
                     shadow-lg transition-all duration-300 text-white'
       >
         {/* Author Section */}
@@ -456,10 +456,10 @@ const Post = ({ post, onLike, onDelete, onComment, onSave }: PostProps) => {
               size='md'
             />
             <div className='ml-3'>
-              <h3 className='font-medium text-text-primary'>
+              <h3 className='font-medium dark:text-white text-black'>
                 {post.author.name}
               </h3>
-              <p className='text-sm text-text-secondary'>
+              <p className='text-sm dark:text-slate-300 text-black'>
                 {post.author.title} • {post.timestamp}
               </p>
             </div>
@@ -477,7 +477,7 @@ const Post = ({ post, onLike, onDelete, onComment, onSave }: PostProps) => {
         {/* Content with Markdown */}
         <div
           className={cn(
-            'relative mb-4 prose prose-invert max-w-none',
+            'relative mb-4 prose prose-invert max-w-none dark:text-white text-black',
             !isExpanded && shouldShowReadMore && 'max-h-[300px] overflow-hidden'
           )}
         >

@@ -285,9 +285,9 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
         onClick={handleOpenModal}
         whileHover={{ scale: 1.003 }}
         whileTap={{ scale: 0.98 }}
-        className='bg-primary-800  backdrop-blur-sm rounded-lg border border-primary-600 p-4 text-white cursor-pointer hover:border-red-500 transition-colors'
+        className='dark:bg-primary-800   shadow-lg backdrop-blur-sm rounded-lg border border-primary-600 p-4 text-white cursor-pointer hover:border-red-500 transition-colors'
       >
-        <div className='flex items-center gap-3 text-gray-400'>
+        <div className='flex items-center gap-3 text-gray-700 dark:text-white'>
           <PenSquare className='w-5 h-5' />
           <SparklesText text='Create a post...' className='text-sm' />
         </div>
@@ -449,13 +449,17 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
                   <button
                     type='button'
                     className={cn(
-                      'text-white transition-colors',
-                      showHelpRaw ? 'text-red-400' : 'hover:text-red-400'
+                      'text-blue-400 transition-colors text-xs',
+                      showHelpRaw ? 'text-blue-400' : 'hover:text-red-400'
                     )}
                     onClick={() => setShowHelpRaw(!showHelpRaw)}
                     title={showHelpRaw ? 'Show preview' : 'Show markdown'}
                   >
-                    <Code className='w-5 h-5 text-red-500 animate-pulse' />
+                    <div className='flex gap-2 align-middle justify-center items-center'>
+                      {showHelpRaw ? 'Show preview' : 'Show markdown'}
+
+                      <Code className='w-5 h-5 text-red-500 animate-pulse' />
+                    </div>
                   </button>
                 </div>
                 <div className='prose prose-invert max-w-none text-sm'>

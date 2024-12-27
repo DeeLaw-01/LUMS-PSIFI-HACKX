@@ -7,6 +7,12 @@ export interface User {
   email: string
   profilePicture?: string
   bio?: string
+  location?: string
+  website?: string
+  settings?: {
+    emailNotifications: boolean
+    darkMode: boolean
+  }
   startup?: string
   position?: string
 }

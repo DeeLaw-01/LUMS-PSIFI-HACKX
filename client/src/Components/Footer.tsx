@@ -3,16 +3,16 @@ import { Facebook, Twitter, Instagram, Linkedin } from 'lucide-react' // Import 
 
 const Footer = () => {
   return (
-    <footer className='bg-black text-white py-12 '>
+    <footer className='dark:bg-black bg-white text-black py-12 '>
       <div className='max-w-7xl mx-auto px-6 lg:px-8'>
         {/* Footer Top Section */}
         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-12'>
           {/* Logo & Description */}
           <div className='flex flex-col space-y-4'>
-            <div className='text-2xl font-bold text-blue-400'>
+            <div className='text-2xl font-bold text-red-500'>
               <Link to='/'>SparkUp</Link>
             </div>
-            <p className='text-sm text-slate-400'>
+            <p className='text-sm dark:text-slate-300 text-black'>
               We are a cutting-edge startup platform that connects like-minded
               individuals and accelerates innovation.
             </p>
@@ -20,8 +20,10 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div className='flex flex-col space-y-4'>
-            <h3 className='text-lg font-semibold text-white'>Quick Links</h3>
-            <ul className='space-y-2 text-slate-400'>
+            <h3 className='text-lg font-semibold dark:text-white text-black'>
+              Quick Links
+            </h3>
+            <ul className='space-y-2 dark:text-slate-300 text-black'>
               <li>
                 <Link to='/' className='hover:text-blue-400'>
                   Home
@@ -48,13 +50,13 @@ const Footer = () => {
           {/* Contact Information */}
           <div className='flex flex-col space-y-4'>
             <h3 className='text-lg font-semibold text-white'>Contact</h3>
-            <p className='text-slate-400'>
+            <p className='dark:text-slate-400 text-black'>
               Email:{' '}
               <a href='mailto:info@company.com' className='hover:text-blue-400'>
-                info@company.com
+                sparkup@company.com
               </a>
             </p>
-            <p className='text-slate-400'>
+            <p className='dark:text-slate-400 text-black'>
               Phone:{' '}
               <a href='tel:+1234567890' className='hover:text-blue-400'>
                 +1 234 567 890

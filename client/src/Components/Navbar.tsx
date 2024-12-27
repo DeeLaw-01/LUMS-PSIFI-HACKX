@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ModeToggle } from './ui/mode-toggle.tsx'
 import {
   Menu,
   X,
@@ -73,11 +74,11 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className='bg-primary-800  border-b border-slate-800 p-4 fixed top-0 w-full z-40 '>
+      <nav className='dark:bg-primary-800 bg-white   dark:border-b shadow-lg border-slate-800 p-4 fixed top-0 w-full z-40 '>
         <div className='max-w-7xl mx-auto flex items-center justify-between'>
           {/* Logo */}
           <div
-            className='text-blue-400 font-bold text-2xl cursor-pointer'
+            className='text-red-500 font-bold text-2xl cursor-pointer'
             onClick={() => navigate('/')}
           >
             SparkUp
@@ -90,7 +91,7 @@ const Navbar = () => {
               <input
                 type='text'
                 placeholder='Search startups...'
-                className='w-full pl-10 pr-4 py-2 bg-gray-800 text-white rounded-lg 
+                className='w-1/2 pl-10 pr-4 py-1 rounded-md dark:bg-gray-800  dark:text-white text-black  
                          border border-slate-700 focus:outline-none focus:ring-2 
                          focus:ring-white focus:border-transparent'
               />
@@ -100,16 +101,16 @@ const Navbar = () => {
           {/* Mobile Menu Icon */}
           <div className='lg:hidden flex items-center gap-4'>
             <Search
-              className='w-6 h-6 text-slate-300 cursor-pointer hover:text-blue-400 transition-colors'
+              className='w-6 h-6 text-black dark:text-slate-300 cursor-pointer hover:text-blue-400 transition-colors'
               onClick={() => navigate('/search')}
             />
             <PlusSquare
-              className='w-6 h-6 text-slate-300 cursor-pointer hover:text-blue-400 transition-colors'
+              className='w-6 h-6 text-black dark:text-slate-300 cursor-pointer hover:text-blue-400 transition-colors'
               onClick={() => navigate('/create-post')}
             />
             <button
               onClick={toggleMobileMenu}
-              className='text-slate-300 hover:text-blue-400 transition-colors'
+              className='text-black dark:text-slate-300 hover:text-blue-400 transition-colors'
             >
               {isMobileMenuOpen ? (
                 <X className='w-7 h-7' />
@@ -121,7 +122,7 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className='hidden lg:flex items-center space-x-8'>
-            <div className='flex space-x-6 text-slate-300'>
+            <div className='flex space-x-6 text-black dark:text-slate-300'>
               <button
                 onClick={() => navigate('/')}
                 className='hover:text-blue-400 transition-colors'
@@ -166,7 +167,7 @@ const Navbar = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className='absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-primary-800 border border-slate-700'
+                    className='absolute right-0 mt-2 w-48 rounded-md shadow-lg dark:bg-primary-800 bg-white border border-slate-700'
                   >
                     <div className='py-1'>
                       <button
@@ -174,14 +175,14 @@ const Navbar = () => {
                           navigate('/dashboard')
                           setIsProfileDropdownOpen(false)
                         }}
-                        className='flex items-center w-full px-4 py-2 text-sm text-slate-300 hover:bg-primary-700 hover:text-slate-100'
+                        className='flex items-center w-full px-4 py-2 text-sm dark:text-slate-300 text-black dark:hover:bg-primary-700 hover:bg-red-500 hover:text-slate-100'
                       >
                         <LayoutDashboard className='w-4 h-4 mr-2' />
                         Dashboard
                       </button>
                       <button
                         onClick={handleLogout}
-                        className='flex items-center w-full px-4 py-2 text-sm text-red-500 hover:bg-primary-700 hover:text-red-400'
+                        className='flex items-center w-full px-4 py-2 text-sm dark:text-red-500 text-red-500 dark:hover:bg-primary-700 hover:bg-red-700 hover:text-red-400'
                       >
                         <LogOut className='w-4 h-4 mr-2' />
                         Logout
@@ -191,6 +192,7 @@ const Navbar = () => {
                 )}
               </AnimatePresence>
             </div>
+            <ModeToggle />
           </div>
         </div>
       </nav>
@@ -198,7 +200,7 @@ const Navbar = () => {
       {/* Mobile Menu Overlay */}
       <div
         className={`
-          fixed top-[73px] left-0 right-0 bottom-0 bg-primary-800 backdrop-blur-sm z-30
+          fixed top-[73px] left-0 right-0 bottom-0 dark:bg-primary-800 bg-white   backdrop-blur-sm z-30
           transform transition-transform duration-300 ease-in-out
           ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}
           lg:hidden
@@ -214,25 +216,25 @@ const Navbar = () => {
                 className='w-12 h-12 rounded-full border-2 border-blue-500/50'
               />
             ) : (
-              <UserCircle className='w-12 h-12 text-slate-300' />
+              <UserCircle className='w-12 h-12 dark:text-slate-300 text-black' />
             )}
             <div className='flex flex-col'>
-              <span className='text-white font-medium'>{user.username}</span>
-              <span className='text-slate-400 text-sm'>{user.email}</span>
+              <span className=' font-medium'>{user.username}</span>
+              <span className=' text-sm'>{user.email}</span>
             </div>
           </div>
         )}
 
         {/* Mobile Navigation Links */}
-        <div className='flex flex-col items-center space-y-1 w-full px-6 py-4'>
+        <div className='flex flex-col items-center space-y-1 w-full text-black dark:text-slate-300 px-6 py-4'>
           {['Home', 'Startups', 'About'].map(item => (
             <button
               key={item}
               onClick={() => {
-                navigate(`/${item.toLowerCase()}`);
-                setIsMobileMenuOpen(false);
+                navigate(`/${item.toLowerCase()}`)
+                setIsMobileMenuOpen(false)
               }}
-              className='w-full text-left text-slate-200 text-lg font-medium 
+              className='w-full text-left  text-lg font-medium 
                        hover:text-blue-400 transition-colors py-3 px-4 rounded-lg
                        hover:bg-slate-800/50'
             >

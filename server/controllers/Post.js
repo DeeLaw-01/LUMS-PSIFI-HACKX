@@ -472,7 +472,7 @@ export const getPostsByUser = async (req, res) => {
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit) || 10
     const skip = (page - 1) * limit
-    const userId = req.params.userId
+    const userId = req.params.id
 
     // Get paginated posts for specific user
     const posts = await Post.find({ author: userId })

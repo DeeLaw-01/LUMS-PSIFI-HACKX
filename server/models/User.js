@@ -26,6 +26,26 @@ const UserSchema = new mongoose.Schema(
       maxLength: 500,
       default: ''
     },
+    location: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+    website: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+    settings: {
+      emailNotifications: {
+        type: Boolean,
+        default: true
+      },
+      darkMode: {
+        type: Boolean,
+        default: true
+      }
+    },
     startup: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Startup'

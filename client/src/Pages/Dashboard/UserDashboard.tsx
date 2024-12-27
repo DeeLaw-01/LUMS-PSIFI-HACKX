@@ -1,35 +1,39 @@
-import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
-import UserPosts from './Components/UserPosts.tsx';
-import UserSettings from './Components/UserSettings.tsx';
-import StartupManagement from './Components/StartupManagement.tsx';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs'
+import UserPosts from './Components/UserPosts'
+import { useAuthStore } from '@/store/useAuthStore'
+import ProfileCard from './Components/ProfileCard.tsx'
+import { ScrollText } from 'lucide-react'
 
 const UserDashboard = () => {
+  const { user } = useAuthStore()
+
   return (
-    <div className="container mx-auto px-4 pt-20">
-      <h1 className="text-2xl font-bold text-slate-200 mb-6">Dashboard</h1>
-      
-      <Tabs defaultValue="posts" className="w-full">
-        <TabsList className="bg-slate-800 border border-slate-700">
-          <TabsTrigger value="posts">My Posts</TabsTrigger>
-          <TabsTrigger value="startups">Startups</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="posts">
-          <UserPosts />
-        </TabsContent>
-        
-        <TabsContent value="startups">
-          <StartupManagement />
-        </TabsContent>
-        
-        <TabsContent value="settings">
-          <UserSettings />
-        </TabsContent>
-      </Tabs>
+    <div className='container mx-auto px-4 pt-20 pb-10'>
+      {/* Profile Overview Section */}
+      <div className='grid grid-cols-1 lg:grid-cols-12 gap-6'>
+        {/* Left Sidebar */}
+        <div className='lg:col-span-3'>
+          <ProfileCard user={user} />
+        </div>
+
+        {/* Main Content */}
+        <div className='lg:col-span-9'>
+          <Tabs defaultValue='posts' className='w-full'>
+            <TabsList className='bg-card border border-border mb-6'>
+              <TabsTrigger value='posts' className='flex items-center gap-2'>
+                <ScrollText className='w-4 h-4' />
+                My Posts
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value='posts'>
+              <UserPosts />
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
     </div>
   )
 }
 
-export default UserDashboard 
+export default UserDashboard

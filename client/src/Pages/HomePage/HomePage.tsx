@@ -14,7 +14,7 @@ const HomePage = () => {
         {/* Left Sidebar */}
         <div className='hidden lg:block lg:col-span-3 space-y-5'>
           {/* Profile Card */}
-          <div className='bg-primary-800 backdrop-blur-sm border border-slate-800 rounded-lg overflow-hidden'>
+          <div className='dark:bg-primary-800 bg-white  backdrop-blur-sm border border-slate-800 rounded-lg overflow-hidden'>
             <div className='h-16 bg-gradient-to-tr from-red-500 to-red-600'></div>
             <div className='p-4 -mt-8'>
               <div className='flex justify-center'>
@@ -26,20 +26,24 @@ const HomePage = () => {
                 />
               </div>
               <div className='text-center mt-2'>
-                <h2 className='text-lg font-semibold text-white'>
+                <h2 className='text-lg font-semibold text-black dark:text-white'>
                   {user?.username}
                 </h2>
-                <p className='text-sm text-slate-400'>
+                <p className='text-sm dark:text-slate-400 text-black'>
                   {user?.bio || 'No bio yet'}
                 </p>
               </div>
               <div className='mt-4 pt-4 border-t border-slate-800'>
                 <div className='flex justify-between text-sm'>
-                  <span className='text-slate-400'>Profile views</span>
+                  <span className='dark:text-slate-100 text-black'>
+                    Profile views
+                  </span>
                   <span className='text-blue-400'>142</span>
                 </div>
                 <div className='flex justify-between text-sm mt-2'>
-                  <span className='text-slate-400'>Post impressions</span>
+                  <span className='dark:text-slate-100 text-black'>
+                    Post impressions
+                  </span>
                   <span className='text-blue-400'>1,234</span>
                 </div>
               </div>
@@ -47,25 +51,25 @@ const HomePage = () => {
           </div>
 
           {/* Quick Links */}
-          <div className='bg-primary-800 backdrop-blur-sm border border-slate-800 rounded-lg p-4'>
+          <div className='dark:bg-primary-800 bg-white backdrop-blur-sm border border-slate-800 rounded-lg p-4 dark:text-slate-300 text-black'>
             <div className='space-y-3'>
               <a
                 href='/saved'
-                className='flex items-center text-slate-300 hover:text-red-400 transition-colors'
+                className='flex items-center  hover:text-red-400 transition-colors'
               >
                 <BookMarked className='w-5 h-5 mr-2' />
                 <span>Saved posts</span>
               </a>
               <a
                 href='#'
-                className='flex items-center text-slate-300 hover:text-red-400 transition-colors'
+                className='flex items-center  hover:text-red-400 transition-colors'
               >
                 <Users2 className='w-5 h-5 mr-2' />
                 <span>My network</span>
               </a>
               <a
                 href='#'
-                className='flex items-center text-slate-300 hover:text-red-400 transition-colors'
+                className='flex items-center  hover:text-red-400 transition-colors'
               >
                 <Briefcase className='w-5 h-5 mr-2' />
                 <span>Jobs</span>
@@ -82,15 +86,17 @@ const HomePage = () => {
         {/* Right Sidebar */}
         <aside className='hidden lg:block lg:col-span-3 space-y-5'>
           {/* News Section */}
-          <div className='bg-primary-800 backdrop-blur-sm border border-slate-800 rounded-lg p-4'>
-            <h2 className='font-semibold text-white mb-4'>Startup News</h2>
+          <div className='dark:bg-primary-800 bg-white backdrop-blur-sm border border-slate-800 rounded-lg p-4 dark:text-slate-300 text-black'>
+            <h2 className='font-semibold dark:text-white text-black mb-4'>
+              Startup News
+            </h2>
             <div className='space-y-4'>
               {[1, 2, 3].map((_, i) => (
                 <div key={i} className='group cursor-pointer'>
-                  <h3 className='text-sm text-slate-300 group-hover:text-blue-400 transition-colors'>
+                  <h3 className='text-sm dark:text-slate-300 text-black group-hover:text-blue-400 transition-colors'>
                     Top startup raises $10M in Series A funding
                   </h3>
-                  <p className='text-xs text-slate-500 mt-1'>
+                  <p className='text-xs dark:text-slate-500 text-black mt-1'>
                     4h ago • 1,234 readers
                   </p>
                 </div>
@@ -99,8 +105,8 @@ const HomePage = () => {
           </div>
 
           {/* Suggested Connections */}
-          <div className='bg-primary-800 backdrop-blur-sm border border-slate-800 rounded-lg p-4'>
-            <h2 className='font-semibold text-white mb-4'>
+          <div className='dark:bg-primary-800 bg-white backdrop-blur-sm border border-slate-800 rounded-lg p-4 dark:text-slate-300 text-black'>
+            <h2 className='font-semibold dark:text-white text-black mb-4'>
               People You May Know
             </h2>
             <div className='space-y-4'>
@@ -108,10 +114,10 @@ const HomePage = () => {
                 <div key={i} className='flex items-center space-x-3'>
                   <ProfileImage alt='Suggested User' size='sm' />
                   <div className='flex-1'>
-                    <h3 className='text-sm font-medium text-slate-200'>
+                    <h3 className='text-sm font-medium dark:text-slate-300 text-black'>
                       John Doe
                     </h3>
-                    <p className='text-xs text-slate-400'>
+                    <p className='text-xs dark:text-slate-400 text-black'>
                       Founder at TechStartup
                     </p>
                   </div>
