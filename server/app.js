@@ -4,7 +4,9 @@ import mongoose from 'mongoose'
 import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import authRoutes from './routes/authRoutes.js'
-
+import postRoutes from './routes/postRoutes.js'
+// import messageRoutes from './routes/messageRoutes.js'
+// import searchRoutes from './routes/searchRoutes.js'
 
 dotenv.config()
 
@@ -20,10 +22,7 @@ app.use(
 )
 
 mongoose.set('strictQuery', false)
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect(process.env.MONGO_URI)
 
 const db = mongoose.connection
 
@@ -42,6 +41,9 @@ db.on('disconnected', () => {
 // ROUTES
 
 app.use('/auth', authRoutes)
+app.use('/posts', postRoutes)
+// app.use('/messages', messageRoutes)
+// app.use('/search', searchRoutes)
 
 app.get('/', (req, res) => {
   res.send('Server is running!')

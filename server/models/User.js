@@ -35,11 +35,23 @@ const UserSchema = new mongoose.Schema(
       trim: true
     },
     profilePicture: {
-      type: String, // Cloudinary URL
-      default: '' // You might want to set a default avatar
+      type: String,
+      default: '',
+      get: url => {
+        if (!url) return ''
+        // If it's a Google profile picture, ensure it's using https
+        if (url.startsWith('http://')) {
+          return url.replace('http://', 'https://')
+        }
+        return url
+      }
     }
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { getters: true },
+    toObject: { getters: true }
+  }
 )
 
 const User = mongoose.model('User', UserSchema)
