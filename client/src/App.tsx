@@ -9,6 +9,7 @@ import HomePage from '@/Pages/HomePage/HomePage.tsx'
 import Navbar from './Components/Navbar'
 import Footer from './Components/Footer'
 import SavedPosts from '@/Pages/SavedPosts/SavedPosts'
+import UserDashboard from '@/Pages/Dashboard/UserDashboard'
 
 const NAVBAR_EXCLUDED_ROUTES = ['/auth']
 const FOOTER_EXCLUDED_ROUTES = ['/auth', '/']
@@ -40,6 +41,10 @@ export default function App () {
           <Route
             path='/saved'
             element={user ? <SavedPosts /> : <Navigate to='/auth' replace />}
+          />
+          <Route
+            path="/dashboard"
+            element={user ? <UserDashboard /> : <Navigate to="/auth" replace />}
           />
 
           {/* Catch all - redirect to home */}
