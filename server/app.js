@@ -7,6 +7,9 @@ import authRoutes from './routes/authRoutes.js'
 import postRoutes from './routes/postRoutes.js'
 // import messageRoutes from './routes/messageRoutes.js'
 // import searchRoutes from './routes/searchRoutes.js'
+import startupRoutes from './routes/startupRoutes.js'
+import userRoutes from './routes/userRoutes.js'
+
 
 dotenv.config()
 
@@ -48,6 +51,9 @@ app.use('/posts', postRoutes)
 app.get('/', (req, res) => {
   res.send('Server is running!')
 })
+
+app.use('/api/users', userRoutes);
+app.use('/api/startups', startupRoutes);
 
 const PORT = process.env.PORT || 4000
 app.listen(PORT, () => {
