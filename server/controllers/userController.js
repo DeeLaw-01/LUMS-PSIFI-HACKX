@@ -11,7 +11,8 @@ export const updateUser = async (req, res) => {
       website,
       settings,
       currentPassword,
-      newPassword
+      newPassword,
+      profilePicture
     } = req.body
     const user = await User.findById(req.user.id)
 
@@ -38,6 +39,7 @@ export const updateUser = async (req, res) => {
     if (bio !== undefined) user.bio = bio
     if (location !== undefined) user.location = location
     if (website !== undefined) user.website = website
+    if (profilePicture !== undefined) user.profilePicture = profilePicture
 
     // Update settings if provided
     if (settings) {

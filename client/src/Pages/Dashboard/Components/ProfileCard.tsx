@@ -1,11 +1,5 @@
 import { Button } from '@/Components/ui/button'
-import {
-  Edit,
-  MapPin,
-  Briefcase,
-  Link as LinkIcon,
-  Settings
-} from 'lucide-react'
+import { Edit, MapPin, Briefcase, Link as LinkIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useState, useRef } from 'react'
 import { Modal } from '@/Components/ui/Modal'
@@ -45,13 +39,6 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
               alt={user.username}
               className='w-24 h-24 rounded-full border-4 border-card'
             />
-            <button
-              onClick={() => setIsSettingsOpen(true)}
-              className='absolute top-0 right-0 p-2 bg-card border border-border rounded-full hover:bg-primary/10 transition-colors'
-              title='Settings'
-            >
-              <Settings className='w-4 h-4 text-muted-foreground' />
-            </button>
           </div>
 
           <div className='space-y-4'>
@@ -82,12 +69,27 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
               <div className='flex items-center gap-2'>
                 <LinkIcon className='w-4 h-4 text-muted-foreground' />
                 <a
-                  href={user.website}
+                  href={
+                    user.website.startsWith('http')
+                      ? user.website
+                      : `https://${user.website}`
+                  }
                   target='_blank'
                   rel='noopener noreferrer'
                   className='text-red-500 hover:text-red-600'
                 >
-                  {new URL(user.website).hostname}
+                  {(() => {
+                    try {
+                      const url = new URL(
+                        user.website.startsWith('http')
+                          ? user.website
+                          : `https://${user.website}`
+                      )
+                      return url.hostname
+                    } catch (error) {
+                      return user.website
+                    }
+                  })()}
                 </a>
               </div>
             )}

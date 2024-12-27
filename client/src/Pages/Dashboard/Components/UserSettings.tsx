@@ -160,7 +160,7 @@ const UserSettings = forwardRef<UserSettingsRef, UserSettingsProps>(
       setIsLoading(true)
 
       try {
-        const response = await api.put('/api/users/update', formData)
+        const response = await api.put('api/users/update', formData)
         setUser(response.data)
         setInitialFormData(formData) // Update initial form data after successful save
         setHasUnsavedChanges(false)
