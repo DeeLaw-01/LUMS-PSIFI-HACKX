@@ -1,4 +1,5 @@
 import Startup from '../models/Startup.js'
+import { createStartupProductNotification } from './notificationController.js'
 
 // Add a product
 export const addProduct = async (req, res) => {
@@ -19,7 +20,16 @@ export const addProduct = async (req, res) => {
     startup.products.push(req.body)
     await startup.save()
 
-    res.status(201).json(startup.products[startup.products.length - 1])
+    const newProduct = startup.products[startup.products.length - 1]
+    
+    // Create notification for followers
+    await createStartupProductNotification(
+      startup._id,
+      newProduct._id,
+      `${startup.displayName} added a new product: ${newProduct.name}`
+    )
+
+    res.status(201).json(newProduct)
   } catch (error) {
     console.log("error at add:", error)
     res.status(500).json({ message: error.message })

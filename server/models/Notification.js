@@ -9,7 +9,7 @@ const NotificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ['STARTUP_POST', 'STARTUP_PRODUCT', 'STARTUP_PROJECT', 'STARTUP_UPDATE', 'STARTUP_FOLLOW'],
+      enum: ['STARTUP_POST', 'STARTUP_PRODUCT', 'STARTUP_PROJECT', 'STARTUP_UPDATE', 'STARTUP_FOLLOW', 'STARTUP_TIMELINE'],
       required: true
     },
     startup: {

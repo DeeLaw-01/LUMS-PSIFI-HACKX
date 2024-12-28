@@ -1,8 +1,20 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useToast } from '@/hooks/use-toast'
 import api from '@/lib/axios'
+import {
+  Building2,
+  Upload,
+  Loader2,
+  ArrowRight,
+  Sparkles,
+  Search,
+  Link as LinkIcon,
+  Users,
+  Clock,
+  Rocket
+} from 'lucide-react'
 import { Button } from '@/Components/ui/button'
 import { Input } from '@/Components/ui/input'
 import { Textarea } from '@/Components/ui/textarea'
@@ -14,17 +26,21 @@ import {
   SelectValue
 } from '@/Components/ui/select'
 import {
-  Rocket,
-  Users,
-  Clock,
-  Upload,
-  Loader2,
-  ArrowRight,
-  Building2,
-  Sparkles
-} from 'lucide-react'
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
+} from '@/Components/ui/tabs'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/Components/ui/card'
 import axios from 'axios'
 import imageCompression from 'browser-image-compression'
+import type { Startup } from '@/types/startup'
 
 // Constants remain the same
 const CLOUDINARY_UPLOAD_PRESET = 'ylmqjrhi'
@@ -67,6 +83,11 @@ const StartupOnboarding = () => {
       coordinates: [0, 0]
     }
   })
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<Startup[]>([])
+  const [loading, setLoading] = useState(false)
+  const [inviteCode, setInviteCode] = useState('')
+  const [message, setMessage] = useState('')
 
   // Existing handlers remain the same
   const handleInputChange = (
@@ -200,6 +221,79 @@ const StartupOnboarding = () => {
   const handleComplete = () => {
     setIsNewUser(false)
     navigate('/')
+  }
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return
+
+    setLoading(true)
+    try {
+      const response = await api.get(`/api/startups/search?q=${searchQuery}`)
+      setSearchResults(response.data)
+      
+      if (response.data.length === 0) {
+        toast({
+          title: 'No Results',
+          description: 'No startups found matching your search',
+          variant: 'default'
+        })
+      }
+    } catch (error: any) {
+      console.error('Search error:', error)
+      toast({
+        title: 'Error',
+        description: error.response?.data?.message || 'Failed to search startups',
+        variant: 'destructive'
+      })
+      setSearchResults([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleRequestToJoin = async (startupId: string) => {
+    setLoading(true)
+    try {
+      await api.post('/api/startups/join/request', {
+        startupId,
+        message
+      })
+      toast({
+        title: 'Success',
+        description: 'Request to join startup sent successfully'
+      })
+      setStep('COMPLETE')
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to send request to join startup',
+        variant: 'destructive'
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleJoinViaInvite = async () => {
+    setLoading(true)
+    try {
+      await api.post('/api/startups/join/invite', {
+        inviteCode
+      })
+      toast({
+        title: 'Success',
+        description: 'Joined startup successfully'
+      })
+      setStep('COMPLETE')
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to join startup',
+        variant: 'destructive'
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const renderChoice = () => (
@@ -459,17 +553,135 @@ const StartupOnboarding = () => {
       <div className='space-y-2'>
         <h2 className='text-3xl font-bold text-white'>Join a Startup</h2>
         <p className='text-gray-400'>
-          This feature is coming soon. You'll be able to search for startups and
-          request to join them.
+          Search for startups or use an invite code to join
         </p>
       </div>
-      <Button
-        variant='outline'
-        onClick={() => setStep('CHOICE')}
-        className='bg-transparent border-gray-700 text-gray-300 hover:bg-gray-800'
-      >
-        Back
-      </Button>
+
+      <div className='bg-gray-900 rounded-lg'>
+        <Tabs defaultValue='search'>
+          <TabsList className='grid w-full grid-cols-2'>
+            <TabsTrigger value='search'>Search Startups</TabsTrigger>
+            <TabsTrigger value='invite'>Join via Invite</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value='search' className='space-y-4 p-4'>
+            <div className='flex gap-2'>
+              <Input
+                placeholder='Search startups by name...'
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                className='bg-gray-800 border-gray-700 text-white'
+              />
+              <Button onClick={handleSearch} disabled={loading}>
+                {loading ? (
+                  <Loader2 className='w-4 h-4 animate-spin' />
+                ) : (
+                  <Search className='w-4 h-4' />
+                )}
+              </Button>
+            </div>
+
+            {searchResults.length > 0 ? (
+              <div className='space-y-4'>
+                {searchResults.map(startup => (
+                  <Card key={startup._id} className='bg-gray-800 border-gray-700'>
+                    <CardHeader>
+                      <div className='flex items-center gap-4'>
+                        {startup.logo ? (
+                          <img
+                            src={startup.logo}
+                            alt={startup.displayName}
+                            className='w-12 h-12 rounded-lg object-cover'
+                          />
+                        ) : (
+                          <div className='w-12 h-12 rounded-lg bg-gray-700 flex items-center justify-center'>
+                            <Building2 className='w-6 h-6 text-gray-400' />
+                          </div>
+                        )}
+                        <div>
+                          <CardTitle className='text-white'>{startup.displayName}</CardTitle>
+                          <p className='text-sm text-gray-400'>{startup.industry}</p>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className='text-sm text-gray-400 mb-4'>
+                        {startup.description}
+                      </p>
+                      <div className='space-y-4'>
+                        <Textarea
+                          placeholder='Why do you want to join this startup? (optional)'
+                          value={message}
+                          onChange={e => setMessage(e.target.value)}
+                          className='bg-gray-800 border-gray-700 text-white'
+                        />
+                        <Button
+                          className='w-full'
+                          onClick={() => handleRequestToJoin(startup._id)}
+                          disabled={loading}
+                        >
+                          {loading ? (
+                            <Loader2 className='w-4 h-4 animate-spin mr-2' />
+                          ) : null}
+                          Request to Join
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : searchQuery && !loading ? (
+              <div className='text-center py-8 text-gray-400'>
+                <p>No startups found matching your search</p>
+                <p className='text-sm mt-2'>Try a different search term</p>
+              </div>
+            ) : null}
+          </TabsContent>
+
+          <TabsContent value='invite' className='p-4'>
+            <Card className='bg-gray-800 border-gray-700'>
+              <CardHeader>
+                <CardTitle className='text-white'>Join via Invite Code</CardTitle>
+              </CardHeader>
+              <CardContent className='space-y-4'>
+                <div className='flex gap-2'>
+                  <Input
+                    placeholder='Enter invite code'
+                    value={inviteCode}
+                    onChange={e => setInviteCode(e.target.value)}
+                    className='bg-gray-800 border-gray-700 text-white'
+                    //@ts-ignore
+                    icon={
+                      <LinkIcon className='w-4 h-4 text-gray-400' />
+                    }
+                  />
+                </div>
+                <Button
+                  className='w-full'
+                  onClick={handleJoinViaInvite}
+                  disabled={loading || !inviteCode}
+                >
+                  {loading ? (
+                    <Loader2 className='w-4 h-4 animate-spin mr-2' />
+                  ) : null}
+                  Join Startup
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      <div className='flex justify-end gap-4'>
+        <Button
+          variant='outline'
+          onClick={() => setStep('CHOICE')}
+          className='bg-transparent border-gray-700 text-gray-300 hover:bg-gray-800'
+        >
+          Back
+        </Button>
+      </div>
     </div>
   )
 

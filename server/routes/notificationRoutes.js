@@ -3,13 +3,17 @@ import verifyToken from '../middlewares/verifyToken.js'
 import {
   getNotifications,
   markAsRead,
-  markAllAsRead
+  markAllAsRead,
+  getUnreadCount
 } from '../controllers/notificationController.js'
 
 const router = express.Router()
 
 // Get user's notifications
 router.get('/', verifyToken, getNotifications)
+
+// Get unread count
+router.get('/unread-count', verifyToken, getUnreadCount)
 
 // Mark notification as read
 router.put('/:id/read', verifyToken, markAsRead)

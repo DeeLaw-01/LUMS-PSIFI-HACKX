@@ -16,6 +16,9 @@ router.get('/user/:userId', verifyToken, startupController.getUserStartups)
 router.get('/', verifyToken, startupController.getAllStartups)
 router.post('/', verifyToken, startupController.createStartup)
 
+// Add search route
+router.get('/search', verifyToken, startupController.searchStartups)
+
 // Team management routes
 router.post('/join/request', verifyToken, startupTeamController.requestToJoin)
 router.post('/join/handle', verifyToken, startupTeamController.handleJoinRequest)

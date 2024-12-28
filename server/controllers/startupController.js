@@ -373,3 +373,32 @@ export const getStartupContent = async (req, res) => {
     res.status(500).json({ message: error.message })
   }
 }
+
+// Search startups
+export const searchStartups = async (req, res) => {
+  try {
+    const { q } = req.query
+    if (!q) {
+      return res.status(400).json({ message: 'Search query is required' })
+    }
+
+    // Create a case-insensitive regex for the search query
+    const searchRegex = new RegExp(q, 'i')
+
+    // Search in displayName and description
+    const startups = await Startup.find({
+      $or: [
+        { displayName: searchRegex },
+        { description: searchRegex }
+      ]
+    })
+    .populate('team.user', 'username email profilePicture')
+    .sort({ createdAt: -1 })
+    .limit(10)
+
+    res.json(startups)
+  } catch (error) {
+    console.error('Search startups error:', error)
+    res.status(500).json({ message: 'Failed to search startups' })
+  }
+}

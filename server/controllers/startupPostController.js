@@ -1,4 +1,5 @@
 import Startup from '../models/Startup.js'
+import { createStartupPostNotification } from './notificationController.js'
 
 // Add a post
 export const addPost = async (req, res) => {
@@ -30,6 +31,14 @@ export const addPost = async (req, res) => {
       .populate('posts.author', 'username profilePicture')
 
     const newPost = populatedStartup.posts[0]
+
+    // Create notification for followers
+    await createStartupPostNotification(
+      startup._id,
+      newPost._id,
+      `${startup.displayName} published a new post: ${newPost.title}`
+    )
+
     res.status(201).json(newPost)
   } catch (error) {
     res.status(500).json({ message: error.message })

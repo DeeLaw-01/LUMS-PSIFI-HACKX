@@ -40,6 +40,11 @@ class NotificationService {
     const response = await axios.post(`/api/startups/${startupId}/unfollow`)
     return response.data
   }
+
+  async getUnreadCount(): Promise<number> {
+    const response = await axios.get('/api/notifications/unread-count')
+    return response.data.count
+  }
 }
 
 export default new NotificationService() 
