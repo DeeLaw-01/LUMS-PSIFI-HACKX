@@ -312,9 +312,10 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className='flex-1 p-4 bg-gray-900 border border-slate-700 rounded-lg resize-none 
+                  className='flex-1 p-4 dark:bg-gray-900 border border-slate-700 rounded-lg resize-none 
                            focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent
-                           text-white placeholder-slate-400 font-mono
+                           bg-white text-black
+                           dark:text-white placeholder-slate-400 font-mono
                            scrollbar-thin scrollbar-thumb-red-500/50 hover:scrollbar-thumb-red-500/70
                            scrollbar-track-gray-800 scrollbar-thumb-rounded-full'
                   placeholder="What's on your mind? (Supports Markdown)"
@@ -438,12 +439,12 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
                 animate={{ opacity: 1, y: 0, x: 0 }}
                 exit={{ opacity: 0, y: 20, x: 0 }}
                 transition={{ duration: 0.3 }}
-                className='w-full lg:w-96 h-[300px] lg:h-auto p-4 bg-gray-900 rounded-lg border border-slate-700 overflow-y-auto text-white
+                className='w-full lg:w-96 h-[300px] lg:h-auto p-4 dark:bg-gray-900 rounded-lg border border-slate-700 overflow-y-auto text-white
                           scrollbar-thin scrollbar-thumb-red-500/50 hover:scrollbar-thumb-red-500/70
                           scrollbar-track-gray-800 scrollbar-thumb-rounded-full'
               >
-                <div className='flex items-center justify-between mb-4'>
-                  <h3 className='text-lg font-semibold text-white'>
+                <div className='flex items-center justify-between mb-4 '>
+                  <h3 className='text-lg font-semibold dark:text-white text-black'>
                     Markdown Guide
                   </h3>
                   <button
@@ -462,7 +463,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
                     </div>
                   </button>
                 </div>
-                <div className='prose prose-invert max-w-none text-sm'>
+                <div className='prose prose-invert max-w-none text-sm bg-white text-black dark:bg-gray-900 dark:text-white'>
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     rehypePlugins={[rehypeRaw, rehypeSanitize]}

@@ -1,12 +1,10 @@
 import express from 'express'
+import { search, quickSearch } from '../controllers/searchController.js'
 import verifyToken from '../middlewares/verifyToken.js'
 
 const router = express.Router()
 
-// Search operations
-router.get('/users', searchUsers)
-router.get('/posts', searchPosts)
-router.get('/messages', verifyToken, searchMessages)
-router.get('/trending', getTrendingTopics)
+router.get('/', verifyToken, search)
+router.get('/quick', verifyToken, quickSearch)
 
 export default router

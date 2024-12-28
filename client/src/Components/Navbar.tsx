@@ -12,10 +12,12 @@ import {
 } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import { motion, AnimatePresence } from 'framer-motion'
+import SearchBar from './SearchBar'
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
   const { user, setUser } = useAuthStore()
@@ -54,6 +56,12 @@ const Navbar = () => {
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
+    setIsMobileSearchOpen(false)
+  }
+
+  const toggleMobileSearch = () => {
+    setIsMobileSearchOpen(!isMobileSearchOpen)
+    setIsMobileMenuOpen(false)
   }
 
   const navigateToProfile = () => {
@@ -67,14 +75,13 @@ const Navbar = () => {
     navigate('/')
   }
 
-  // Update profile click handler
   const toggleProfileDropdown = () => {
     setIsProfileDropdownOpen(!isProfileDropdownOpen)
   }
 
   return (
     <>
-      <nav className='dark:bg-primary-800 bg-white   dark:border-b shadow-lg border-slate-800 p-4 fixed top-0 w-full z-40 '>
+      <nav className='dark:bg-primary-800 bg-white dark:border-b shadow-lg border-slate-800 p-4 fixed top-0 w-full z-40'>
         <div className='max-w-7xl mx-auto flex items-center justify-between'>
           {/* Logo */}
           <div
@@ -86,24 +93,17 @@ const Navbar = () => {
 
           {/* Search Bar - Desktop */}
           <div className='hidden lg:block flex-grow max-w-xl mx-8'>
-            <div className='relative'>
-              <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400  w-5 h-5' />
-              <input
-                type='text'
-                placeholder='Search startups...'
-                className='w-1/2 pl-10 pr-4 py-1 rounded-md dark:bg-gray-800  dark:text-white text-black  
-                         border border-slate-700 focus:outline-none focus:ring-2 
-                         focus:ring-white focus:border-transparent'
-              />
-            </div>
+            <SearchBar />
           </div>
 
           {/* Mobile Menu Icon */}
           <div className='lg:hidden flex items-center gap-4'>
-            <Search
-              className='w-6 h-6 text-black dark:text-slate-300 cursor-pointer hover:text-blue-400 transition-colors'
-              onClick={() => navigate('/search')}
-            />
+            <button
+              onClick={toggleMobileSearch}
+              className='text-black dark:text-slate-300 hover:text-blue-400 transition-colors'
+            >
+              <Search className='w-6 h-6' />
+            </button>
             <PlusSquare
               className='w-6 h-6 text-black dark:text-slate-300 cursor-pointer hover:text-blue-400 transition-colors'
               onClick={() => navigate('/create-post')}
@@ -135,7 +135,6 @@ const Navbar = () => {
               >
                 Startups
               </button>
-              
             </div>
 
             {/* User Profile Section with Dropdown */}
@@ -190,12 +189,26 @@ const Navbar = () => {
             <ModeToggle />
           </div>
         </div>
+
+        {/* Mobile Search Overlay */}
+        <AnimatePresence>
+          {isMobileSearchOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className='lg:hidden absolute left-0 right-0 top-full mt-2 px-4 pb-4 bg-inherit border-b border-slate-700'
+            >
+              <SearchBar />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
 
       {/* Mobile Menu Overlay */}
       <div
         className={`
-          fixed top-[73px] left-0 right-0 bottom-0 dark:bg-primary-800 bg-white   backdrop-blur-sm z-30
+          fixed top-[73px] left-0 right-0 bottom-0 dark:bg-primary-800 bg-white backdrop-blur-sm z-30
           transform transition-transform duration-300 ease-in-out
           ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}
           lg:hidden
@@ -214,8 +227,8 @@ const Navbar = () => {
               <UserCircle className='w-12 h-12 dark:text-slate-300 text-black' />
             )}
             <div className='flex flex-col'>
-              <span className=' font-medium'>{user.username}</span>
-              <span className=' text-sm'>{user.email}</span>
+              <span className='font-medium'>{user.username}</span>
+              <span className='text-sm'>{user.email}</span>
             </div>
           </div>
         )}
@@ -229,13 +242,21 @@ const Navbar = () => {
                 navigate(`/${item.toLowerCase()}`)
                 setIsMobileMenuOpen(false)
               }}
-              className='w-full text-left  text-lg font-medium 
+              className='w-full text-left text-lg font-medium 
                        hover:text-blue-400 transition-colors py-3 px-4 rounded-lg
                        hover:bg-slate-800/50'
             >
               {item}
             </button>
           ))}
+          
+          {/* Mode Toggle in Mobile Menu */}
+          <div className='w-full pt-4 border-t border-slate-700 mt-4'>
+            <div className='flex items-center justify-between px-4'>
+              <span className='text-sm font-medium'>Theme</span>
+              <ModeToggle />
+            </div>
+          </div>
         </div>
       </div>
     </>

@@ -5,8 +5,7 @@ import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import authRoutes from './routes/authRoutes.js'
 import postRoutes from './routes/postRoutes.js'
-// import messageRoutes from './routes/messageRoutes.js'
-// import searchRoutes from './routes/searchRoutes.js'
+import searchRoutes from './routes/searchRoutes.js'
 import startupRoutes from './routes/startupRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 
@@ -44,8 +43,7 @@ db.on('disconnected', () => {
 
 app.use('/auth', authRoutes)
 app.use('/posts', postRoutes)
-// app.use('/messages', messageRoutes)
-// app.use('/search', searchRoutes)
+app.use('/api/search', searchRoutes)
 
 app.get('/', (req, res) => {
   res.send('Server is running!')
