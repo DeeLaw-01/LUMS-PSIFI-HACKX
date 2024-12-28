@@ -115,9 +115,9 @@ const Feed = forwardRef<FeedRef>((props, ref) => {
           post={{
             id: post._id,
             author: {
-              name: post.author.username,
+              name: post.author?.username || 'Unknown User',
               title: 'Member',
-              avatar: post.author.profilePicture
+              avatar: post.author?.profilePicture
             },
             content: post.content,
             timestamp: new Date(post.createdAt).toLocaleDateString(),
@@ -125,7 +125,7 @@ const Feed = forwardRef<FeedRef>((props, ref) => {
             comments: post.comments,
             isLiked: isPostLiked(post),
             isSaved: isPostSaved(post),
-            isOwnPost: user ? post.author._id === user._id : false,
+            isOwnPost: user ? post.author?._id === user._id : false,
             images: post.images
           }}
           onLike={() => handlePostLiked(post._id)}

@@ -32,12 +32,15 @@ export const register = async (req, res) => {
 
     res.status(201).json({
       user: {
-        id: user._id,
+        _id: user._id,
         username: user.username,
         email: user.email,
-        profilePicture: user.profilePicture
+        profilePicture: user.profilePicture,
+        bio: user.bio,
+        startups: user.startups
       },
-      token
+      token,
+      isNewUser: true
     })
   } catch (error) {
     res.status(500).json({ message: 'Server error' })
@@ -72,12 +75,15 @@ export const login = async (req, res) => {
 
     res.json({
       user: {
-        id: user._id,
+        _id: user._id,
         username: user.username,
         email: user.email,
-        profilePicture: user.profilePicture
+        profilePicture: user.profilePicture,
+        bio: user.bio,
+        startups: user.startups
       },
-      token
+      token,
+      isNewUser: false
     })
   } catch (error) {
     res.status(500).json({ message: 'Server error' })
@@ -90,7 +96,10 @@ export const verifyGoogleToken = async (req, res) => {
 
     // Find or create user
     let user = await User.findOne({ email })
+    let isNewUser = false
+
     if (!user) {
+      isNewUser = true
       // Create new user with Google data
       user = new User({
         email,
@@ -123,10 +132,10 @@ export const verifyGoogleToken = async (req, res) => {
         email: user.email,
         profilePicture: user.profilePicture,
         bio: user.bio,
-        startup: user.startup,
-        position: user.position
+        startups: user.startups
       },
-      token
+      token,
+      isNewUser
     })
   } catch (error) {
     console.log(error)

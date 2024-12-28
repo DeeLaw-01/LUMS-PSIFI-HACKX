@@ -31,7 +31,7 @@ const LoginPage = () => {
     email: '',
     password: ''
   })
-  const { setUser, setToken } = useAuthStore()
+  const { setUser, setToken, setIsNewUser } = useAuthStore()
   const navigate = useNavigate()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,13 +64,21 @@ const LoginPage = () => {
         }`,
         formData
       )
+
       setUser(response.data.user)
       setToken(response.data.token)
+      setIsNewUser(response.data.isNewUser)
+
+      if (response.data.isNewUser) {
+        navigate('/onboarding')
+      } else {
+        navigate('/')
+      }
+
       toast({
         title: 'Success',
         description: `Successfully ${isLogin ? 'logged in' : 'registered'}!`
       })
-      navigate('/')
     } catch (error: any) {
       console.error('Auth error:', error)
       toast({
@@ -109,11 +117,18 @@ const LoginPage = () => {
       )
       setUser(response.data.user)
       setToken(response.data.token)
+      setIsNewUser(response.data.isNewUser)
+
+      if (response.data.isNewUser) {
+        navigate('/onboarding')
+      } else {
+        navigate('/')
+      }
+
       toast({
         title: 'Success',
         description: 'Successfully logged in with Google'
       })
-      navigate('/')
     } catch (error: any) {
       console.error('Google auth error:', error)
       toast({

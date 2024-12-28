@@ -10,12 +10,15 @@ import Navbar from './Components/Navbar'
 import Footer from './Components/Footer'
 import SavedPosts from '@/Pages/SavedPosts/SavedPosts'
 import UserDashboard from '@/Pages/Dashboard/UserDashboard'
+import StartupOnboarding from './Pages/Onboarding/StartupOnboarding.tsx'
+import JoinStartup from './Pages/Startup/JoinStartup'
+import StartupSection from './Pages/Dashboard/Components/StartupSection'
 
-const NAVBAR_EXCLUDED_ROUTES = ['/auth']
+const NAVBAR_EXCLUDED_ROUTES = ['/auth', '/onboarding']
 const FOOTER_EXCLUDED_ROUTES = ['/auth', '/']
 
 export default function App () {
-  const { user } = useAuthStore()
+  const { user, isNewUser } = useAuthStore()
   const location = useLocation()
 
   const showNavbar = !NAVBAR_EXCLUDED_ROUTES.includes(location.pathname)
@@ -32,11 +35,20 @@ export default function App () {
             path='/auth'
             element={!user ? <AuthPage /> : <Navigate to='/' replace />}
           />
-
           {/* Protected Routes */}
           <Route
             path='/'
-            element={user ? <HomePage /> : <Navigate to='/auth' replace />}
+            element={
+              user ? (
+                isNewUser ? (
+                  <Navigate to='/onboarding' replace />
+                ) : (
+                  <HomePage />
+                )
+              ) : (
+                <Navigate to='/auth' replace />
+              )
+            }
           />
           <Route
             path='/saved'
@@ -47,6 +59,26 @@ export default function App () {
             element={user ? <UserDashboard /> : <Navigate to='/auth' replace />}
           />
 
+          <Route
+            path='/onboarding'
+            element={
+              user && isNewUser ? (
+                <StartupOnboarding />
+              ) : (
+                <Navigate to='/' replace />
+              )
+            }
+          />
+          <Route
+            path='/startup/join'
+            element={user ? <JoinStartup /> : <Navigate to='/auth' replace />}
+          />
+          <Route
+            path='/dashboard/startups'
+            element={
+              user ? <StartupSection /> : <Navigate to='/auth' replace />
+            }
+          />
           {/* Catch all - redirect to home */}
           <Route path='*' element={<Navigate to='/' replace />} />
         </Routes>
