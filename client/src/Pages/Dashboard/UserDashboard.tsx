@@ -45,12 +45,13 @@ const UserDashboard = () => {
       const data = await getUserStartups()
       setStartups(data)
     } catch (error: any) {
-      toast({
-        title: 'Error',
-        description:
-          error.response?.data?.message || 'Failed to fetch startups',
-        variant: 'destructive'
-      })
+      console.log(error)
+      // toast({
+      //   title: 'Error from startup',
+      //   description:
+      //     error.response?.data?.message || 'Failed to fetch startups',
+      //   variant: 'destructive'
+      // })
     } finally {
       setLoading(false)
     }
@@ -62,8 +63,8 @@ const UserDashboard = () => {
       <div className='grid grid-cols-1 lg:grid-cols-12 gap-6'>
         {/* Left Sidebar */}
         <div className='lg:col-span-3 space-y-6'>
-          <ProfileCard user={user} />
-          <StartupSection />
+          <ProfileCard user={user} isCurrentUser={true}  />
+          <StartupSection userId={user?._id} />
         </div>
 
         {/* Main Content */}

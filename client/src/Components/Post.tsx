@@ -6,7 +6,13 @@ import {
   Bookmark,
   Trash2,
   Send,
-  Loader2
+  Loader2,
+  Copy,
+  Check,
+  Facebook,
+  Twitter,
+  Linkedin,
+  Smartphone
 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -18,6 +24,15 @@ import { useAuthStore } from '@/store/useAuthStore'
 import { cn } from '@/lib/utils'
 import postService from '@/services/postService'
 import type { Comment, Reply } from '@/services/postService'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/Components/ui/dialog'
+import { Button } from '@/Components/ui/button'
+import { Input } from '@/Components/ui/input'
 
 interface PostAuthor {
   name: string
@@ -306,6 +321,9 @@ const Post = ({ post, onLike, onDelete, onComment, onSave }: PostProps) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const contentRef = useRef<HTMLDivElement>(null)
   const [shouldShowReadMore, setShouldShowReadMore] = useState(false)
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const shareUrl = `${window.location.origin}/post/${post.id}`
 
   useEffect(() => {
     if (contentRef.current) {
@@ -439,6 +457,42 @@ const Post = ({ post, onLike, onDelete, onComment, onSave }: PostProps) => {
     if (currentImageIndex > 0) {
       setCurrentImageIndex(prev => prev - 1)
     }
+  }
+
+  const handleShare = () => {
+    setShareDialogOpen(true)
+  }
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+    }
+  }
+
+  const shareToSocial = (platform: string) => {
+    const text = `Check out this post: ${shareUrl}`
+    let url = ''
+
+    switch (platform) {
+      case 'facebook':
+        url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`
+        break
+      case 'twitter':
+        url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('Check out this post!')}`
+        break
+      case 'linkedin':
+        url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`
+        break
+      case 'whatsapp':
+        url = `https://wa.me/?text=${encodeURIComponent(text)}`
+        break
+    }
+
+    window.open(url, '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -622,7 +676,10 @@ const Post = ({ post, onLike, onDelete, onComment, onSave }: PostProps) => {
             />
             <span>{post.comments.length}</span>
           </button>
-          <button className='flex items-center space-x-2 text-gray-400 hover:text-red-500 transition-colors duration-200'>
+          <button 
+            onClick={handleShare}
+            className='flex items-center space-x-2 text-gray-400 hover:text-red-500 transition-colors duration-200'
+          >
             <Share2 className='w-5 h-5' />
             <span>Share</span>
           </button>
@@ -708,6 +765,75 @@ const Post = ({ post, onLike, onDelete, onComment, onSave }: PostProps) => {
           </div>
         )}
       </div>
+
+      {/* Share Dialog */}
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share Post</DialogTitle>
+            <DialogDescription>
+              Share this post with your network
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className='space-y-4'>
+            <div className='flex items-center space-x-2'>
+              <Input 
+                readOnly 
+                value={shareUrl}
+                className='flex-1'
+              />
+              <Button
+                variant='outline'
+                size='icon'
+                onClick={copyToClipboard}
+                className='shrink-0'
+              >
+                {copied ? (
+                  <Check className='w-4 h-4 text-green-500' />
+                ) : (
+                  <Copy className='w-4 h-4' />
+                )}
+              </Button>
+            </div>
+
+            <div className='flex justify-center space-x-4'>
+              <Button
+                variant='outline'
+                size='icon'
+                onClick={() => shareToSocial('facebook')}
+                className='text-blue-500 hover:text-blue-600'
+              >
+                <Facebook className='w-5 h-5' />
+              </Button>
+              <Button
+                variant='outline'
+                size='icon'
+                onClick={() => shareToSocial('twitter')}
+                className='text-sky-500 hover:text-sky-600'
+              >
+                <Twitter className='w-5 h-5' />
+              </Button>
+              <Button
+                variant='outline'
+                size='icon'
+                onClick={() => shareToSocial('linkedin')}
+                className='text-blue-600 hover:text-blue-700'
+              >
+                <Linkedin className='w-5 h-5' />
+              </Button>
+              <Button
+                variant='outline'
+                size='icon'
+                onClick={() => shareToSocial('whatsapp')}
+                className='text-green-500 hover:text-green-600'
+              >
+                <Smartphone className='w-5 h-5' />
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Image Modal */}
       {post.images && (

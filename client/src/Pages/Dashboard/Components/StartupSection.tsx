@@ -7,7 +7,6 @@ import type { Startup } from '@/types/startup'
 import {
   Building2,
   Plus,
-  Users,
   ChevronRight,
   Loader2
 } from 'lucide-react'
@@ -22,7 +21,12 @@ import { Button } from '@/Components/ui/button'
 import { Badge } from '@/Components/ui/badge'
 import { Separator } from '@/Components/ui/separator'
 
-const StartupSection = () => {
+interface StartupSectionProps {
+  userId?: string
+  viewOnly?: boolean
+}
+
+const StartupSection = ({ userId, viewOnly = false }: StartupSectionProps) => {
   const { user } = useAuthStore()
   const navigate = useNavigate()
   const { toast } = useToast()
@@ -31,12 +35,12 @@ const StartupSection = () => {
 
   useEffect(() => {
     fetchStartups()
-  }, [])
+  }, [userId])
 
   const fetchStartups = async () => {
     try {
       setLoading(true)
-      const data = await getUserStartups()
+      const data = await getUserStartups(userId)
       setStartups(data)
     } catch (error: any) {
       toast({
@@ -51,32 +55,19 @@ const StartupSection = () => {
 
   return (
     <Card>
-      <CardHeader>
-        <div className='flex justify-between items-start'>
-          <div>
-            <CardTitle>My Startups</CardTitle>
-            <CardDescription>Startups you've created or joined</CardDescription>
-            <div className='flex gap-2 mt-4'>
-              <Button
-                variant='outline'
-                size='sm'
-                className='gap-2'
-                onClick={() => navigate('/startup/join')}
-              >
-                <Users className='w-4 h-4' />
-                Join
-              </Button>
-              <Button
-                size='sm'
-                className='gap-2'
-                onClick={() => navigate('/startup/create')}
-              >
-                <Plus className='w-4 h-4' />
-                Create
-              </Button>
-            </div>
-          </div>
+      <CardHeader className='flex flex-row items-center justify-between'>
+        <div>
+          <CardTitle>Startups</CardTitle>
+          <CardDescription>
+            {viewOnly ? 'User\'s startups' : 'Manage your startups'}
+          </CardDescription>
         </div>
+        {!viewOnly && (
+          <Button onClick={() => navigate('/startup/create')} className='gap-2'>
+            <Plus className='w-4 h-4' />
+            Create Startup
+          </Button>
+        )}
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -85,18 +76,19 @@ const StartupSection = () => {
           </div>
         ) : startups.length === 0 ? (
           <div className='text-center py-6 text-muted-foreground'>
-            <p>You haven't joined any startups yet.</p>
-            <p className='text-sm'>Create your first startup or join an existing one.</p>
+            <p>No startups found.</p>
           </div>
         ) : (
           <div className='space-y-4'>
             {startups.map(startup => {
               const userRole = startup.team.find(
-                member => member.user._id === user?._id
+                member => member.user._id === (userId || user?._id)
               )?.role
 
               return (
-                <div key={startup._id}>
+                <div key={startup._id}   
+                onClick={() => navigate(`/startup/${startup._id}`)} 
+                className='dark:hover:bg-gray-900 hover:bg-gray-200 p-2 rounded-md cursor-pointer'>
                   <div className='flex items-center justify-between gap-4'>
                     <div className='flex items-center gap-3 min-w-0'>
                       {startup.logo ? (
@@ -121,14 +113,7 @@ const StartupSection = () => {
                         </div>
                       </div>
                     </div>
-                    <Button
-                      variant='ghost'
-                      size='sm'
-                      className='h-8 w-8 p-0'
-                      onClick={() => navigate(`/startup/${startup._id}`)}
-                    >
-                      <ChevronRight className='w-4 h-4' />
-                    </Button>
+                    <ChevronRight className='w-4 h-4' />
                   </div>
                   {startups.indexOf(startup) !== startups.length - 1 && (
                     <Separator className='my-4' />

@@ -22,9 +22,12 @@ export const getStartup = async (id: string) => {
   return response.data
 }
 
-export const getUserStartups = async () => {
-  const response = await api.get('/api/startups/user/startups')
-  return response.data
+export const getUserStartups = async (userId?: string) => {
+  const url = userId 
+    ? `/api/startups/user/${userId}` 
+    : '/api/startups/user';
+  const response = await api.get(url);
+  return response.data;
 }
 
 export const searchStartups = async (query: string) => {
@@ -285,6 +288,23 @@ export const deleteTimelineEvent = async (startupId: string, eventId: string) =>
   return response.data
 }
 
+export const updateStartup = async (startupId: string, data: {
+  logo?: string
+  displayName?: string
+  description?: string
+  industry?: string
+  fundraised?: number
+  timelineStatus?: string
+}) => {
+  const response = await api.put(`/api/startups/${startupId}`, data)
+  return response.data
+}
+
+export const deleteStartup = async (startupId: string) => {
+  const response = await api.delete(`/api/startups/${startupId}`)
+  return response.data
+}
+
 const startupService = {
   createStartup,
   getStartup,
@@ -311,7 +331,9 @@ const startupService = {
   getTimelineEvents,
   addTimelineEvent,
   updateTimelineEvent,
-  deleteTimelineEvent
+  deleteTimelineEvent,
+  updateStartup,
+  deleteStartup
 }
 
 export default startupService

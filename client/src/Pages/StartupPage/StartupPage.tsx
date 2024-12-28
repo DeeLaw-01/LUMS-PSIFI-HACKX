@@ -67,14 +67,6 @@ const StartupPage = () => {
     }
   }
 
-  const userRole = startup?.team?.find(
-    member => member.user._id === user?._id
-  )?.role || undefined
-
-  console.log("user role: ",userRole)
-
-  const canManage = userRole === 'OWNER' || userRole === 'EDITOR'
-
   if (loading) {
     return (
       <div className='min-h-screen flex items-center justify-center'>
@@ -89,8 +81,7 @@ const StartupPage = () => {
         <div className='text-center'>
           <h1 className='text-2xl font-bold mb-2'>Startup not found</h1>
           <p className='text-muted-foreground mb-4'>
-            The startup you're looking for doesn't exist or you don't have
-            access to it.
+            The startup you're looking for doesn't exist.
           </p>
           <Button onClick={() => navigate('/dashboard')}>
             Back to Dashboard
@@ -99,6 +90,12 @@ const StartupPage = () => {
       </div>
     )
   }
+
+  const userRole = startup?.team?.find(
+    member => member.user._id === user?._id
+  )?.role
+
+  const canManage = userRole === 'OWNER' || userRole === 'EDITOR'
 
   return (
     <div className='min-h-screen bg-background mt-16'>

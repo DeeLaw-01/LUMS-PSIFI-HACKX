@@ -81,7 +81,7 @@ const Navbar = () => {
             className='text-red-500 font-bold text-2xl cursor-pointer'
             onClick={() => navigate('/')}
           >
-            SparkUp
+            SPARKUP
           </div>
 
           {/* Search Bar - Desktop */}
@@ -130,17 +130,12 @@ const Navbar = () => {
                 Home
               </button>
               <button
-                onClick={() => navigate('/startups')}
+                onClick={() => navigate('/dashboard')}
                 className='hover:text-blue-400 transition-colors'
               >
                 Startups
               </button>
-              <button
-                onClick={() => navigate('/about')}
-                className='hover:text-blue-400 transition-colors'
-              >
-                About
-              </button>
+              
             </div>
 
             {/* User Profile Section with Dropdown */}

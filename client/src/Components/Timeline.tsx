@@ -248,7 +248,7 @@ const Timeline = ({ startupId, canEdit }: TimelineProps) => {
   )
 
   return (
-    <div className='space-y-6'>
+      <div className='space-y-6'>
       {/* Header with Add Button */}
       <div className='flex justify-between items-center'>
         <h2 className='text-2xl font-bold'>Timeline</h2>
@@ -327,12 +327,12 @@ const Timeline = ({ startupId, canEdit }: TimelineProps) => {
                   )} flex items-center justify-center flex-shrink-0`}
                 >
                   <Clock className='w-6 h-6 text-white' />
-                </div>
+            </div>
                 <div className='flex-1'>
                   <Card>
                     <CardHeader>
                       <div className='flex items-center justify-between gap-4'>
-                        <div>
+            <div>
                           <CardTitle>{event.title}</CardTitle>
                           <CardDescription>
                             {new Date(event.date).toLocaleDateString()}

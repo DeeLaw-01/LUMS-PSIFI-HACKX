@@ -5,7 +5,8 @@ import {
   updateMemberRole,
   updateMemberPosition,
   removeMember,
-  createInviteLink
+  createInviteLink,
+  handleJoinRequest
 } from '@/services/startupService'
 import type { Startup } from '@/types/startup'
 import {
@@ -14,7 +15,9 @@ import {
   Link,
   MoreVertical,
   Loader2,
-  Copy
+  Copy,
+  Check,
+  X
 } from 'lucide-react'
 import { Button } from '@/Components/ui/button'
 import {
@@ -48,7 +51,9 @@ import {
   SelectValue
 } from '@/Components/ui/select'
 import { Badge } from '@/Components/ui/badge'
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs'
+import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar'
+import JoinRequestDialog from '../Components/JoinRequestDialog'
 
 interface TeamSectionProps {
   startup: Startup
@@ -59,7 +64,7 @@ interface TeamSectionProps {
 const TeamSection = ({ startup, userRole, onUpdate }: TeamSectionProps) => {
   const { user } = useAuthStore()
   const { toast } = useToast()
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState<string | null>(null)
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false)
   const [inviteRole, setInviteRole] = useState<'EDITOR' | 'VIEWER'>('VIEWER')
   const [inviteLink, setInviteLink] = useState('')
@@ -67,9 +72,11 @@ const TeamSection = ({ startup, userRole, onUpdate }: TeamSectionProps) => {
     userId: string
     position: string
   } | null>(null)
-
+  const [showJoinDialog, setShowJoinDialog] = useState(false)
+  
   const isOwner = userRole === 'OWNER'
   console.log("startup", startup)
+
   const handleCreateInvite = async () => {
     try {
       setLoading(true)
@@ -167,6 +174,30 @@ const TeamSection = ({ startup, userRole, onUpdate }: TeamSectionProps) => {
     }
   }
 
+  const handleRequest = async (userId: string, status: 'ACCEPTED' | 'REJECTED') => {
+    try {
+      setLoading(userId)
+      await handleJoinRequest(startup._id, userId, status)
+      toast({
+        title: 'Success',
+        description: `Request ${status.toLowerCase()} successfully`
+      })
+      onUpdate()
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.response?.data?.message || 'Failed to handle request',
+        variant: 'destructive'
+      })
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  const pendingRequests = startup.joinRequests.filter(
+    request => request.status === 'PENDING'
+  )
+
   return (
     <div className='space-y-6'>
       {/* Team Management Header */}
@@ -174,14 +205,16 @@ const TeamSection = ({ startup, userRole, onUpdate }: TeamSectionProps) => {
         <div>
           <h2 className='text-2xl font-bold'>Team Members</h2>
           <p className='text-muted-foreground'>
-            Manage your startup's team and roles
+            {userRole ? 'Manage your startup\'s team and roles' : 'View team members'}
           </p>
         </div>
         {isOwner && (
+          
           <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
             <DialogTrigger asChild>
               <Button className='gap-2'>
                 <UserPlus className='w-4 h-4' />
+                
                 Invite Member
               </Button>
             </DialogTrigger>
@@ -245,130 +278,193 @@ const TeamSection = ({ startup, userRole, onUpdate }: TeamSectionProps) => {
         )}
       </div>
 
-      {/* Team Members List */}
-      <div className='grid gap-4'>
-        {startup.team.map(member => (
-          <Card key={member.user._id}>
-            <CardContent className='p-4'>
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center gap-4'>
-                  {member.user.profilePicture ? (
-                    <img
-                      src={member.user.profilePicture}
-                      alt={member.user.username}
-                      className='w-10 h-10 rounded-full object-cover'
-                    />
-                  ) : (
-                    <div className='w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center'>
-                      <Users className='w-5 h-5 text-primary' />
-                    </div>
-                  )}
-                  <div>
-                    <div className='flex items-center gap-2'>
-                      <h3 className='font-medium'>{member.user.username}</h3>
-                      <Badge variant='secondary'>{member.role}</Badge>
-                    </div>
-                    <p className='text-sm text-muted-foreground'>
-                      {member.position || 'No position set'}
-                    </p>
-                  </div>
-                </div>
+      <Tabs defaultValue="members" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="members">Team Members</TabsTrigger>
+          {isOwner && (
+            <TabsTrigger value="requests">
+              Join Requests
+              {pendingRequests.length > 0 && (
+                <Badge variant="secondary" className="ml-2">
+                  {pendingRequests.length}
+                </Badge>
+              )}
+            </TabsTrigger>
+          )}
+        </TabsList>
 
-                {isOwner && member.user._id !== user?._id && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant='ghost' size='icon'>
-                        <MoreVertical className='w-4 h-4' />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align='end'>
-                      <DropdownMenuItem
-                        onClick={() =>
-                          setEditingMember({
-                            userId: member.user._id,
-                            position: member.position
-                          })
-                        }
-                      >
-                        Edit Position
-                      </DropdownMenuItem>
-                      {member.role !== 'OWNER' && (
-                        <>
+        <TabsContent value="members">
+          {/* Public Team Members List */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Team Members</CardTitle>
+              <CardDescription>
+                People currently working on this startup
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className='space-y-4'>
+                {startup.team.map(member => (
+                  <div
+                    key={member.user._id}
+                    className='flex items-center justify-between'
+                  >
+                    <div className='flex items-center gap-4'>
+                      <Avatar>
+                        <AvatarImage src={member.user.profilePicture} />
+                        <AvatarFallback>
+                          {member.user.username.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className='flex items-center gap-2'>
+                          <h3 className='font-medium'>{member.user.username}</h3>
+                          <Badge variant='secondary'>{member.role}</Badge>
+                        </div>
+                        <p className='text-sm text-muted-foreground'>
+                          {member.position || 'No position set'}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Only show management options for owners */}
+                    {isOwner && member.user._id !== user?._id && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant='ghost' size='icon'>
+                            <MoreVertical className='w-4 h-4' />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align='end'>
                           <DropdownMenuItem
                             onClick={() =>
-                              handleUpdateRole(member.user._id, 'EDITOR')
+                              setEditingMember({
+                                userId: member.user._id,
+                                position: member.position
+                              })
                             }
                           >
-                            Make Editor
+                            Edit Position
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleUpdateRole(member.user._id, 'VIEWER')
-                            }
-                          >
-                            Make Viewer
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className='text-destructive'
-                            onClick={() => handleRemoveMember(member.user._id)}
-                          >
-                            Remove Member
-                          </DropdownMenuItem>
-                        </>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
+                          {member.role !== 'OWNER' && (
+                            <>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  handleUpdateRole(member.user._id, 'EDITOR')
+                                }
+                              >
+                                Make Editor
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  handleUpdateRole(member.user._id, 'VIEWER')
+                                }
+                              >
+                                Make Viewer
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className='text-destructive'
+                                onClick={() => handleRemoveMember(member.user._id)}
+                              >
+                                Remove Member
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
+        </TabsContent>
 
-      {/* Edit Position Dialog */}
-      <Dialog
-        open={!!editingMember}
-        onOpenChange={(open) => !open && setEditingMember(null)}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Position</DialogTitle>
-            <DialogDescription>
-              Update the team member's position in the startup
-            </DialogDescription>
-          </DialogHeader>
-          <div className='space-y-4 py-4'>
-            <div className='space-y-2'>
-              <label className='text-sm font-medium'>Position</label>
-              <Input
-                value={editingMember?.position || ''}
-                onChange={(e) =>
-                  setEditingMember(prev =>
-                    prev ? { ...prev, position: e.target.value } : null
-                  )
-                }
-                placeholder="e.g., 'Product Manager' or 'Lead Developer'"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant='outline'
-              onClick={() => setEditingMember(null)}
-              disabled={loading}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleUpdatePosition} disabled={loading}>
-              {loading ? (
-                <Loader2 className='w-4 h-4 mr-2 animate-spin' />
-              ) : (
-                'Save Changes'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        {isOwner && (
+          <TabsContent value="requests">
+            <Card>
+              <CardHeader>
+                <CardTitle>Join Requests</CardTitle>
+                <CardDescription>
+                  People who want to join your startup
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {pendingRequests.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-4">
+                    No pending requests
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    {pendingRequests.map(request => (
+                      <div
+                        key={request.user._id}
+                        className="flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Avatar>
+                            <AvatarImage src={request.user.profilePicture} />
+                            <AvatarFallback>
+                              {request.user.username.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">{request.user.username}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {request.message}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleRequest(request.user._id, 'REJECTED')}
+                            disabled={!!loading}
+                          >
+                            {loading === request.user._id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <X className="w-4 h-4" />
+                            )}
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => handleRequest(request.user._id, 'ACCEPTED')}
+                            disabled={!!loading}
+                          >
+                            {loading === request.user._id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Check className="w-4 h-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
+      </Tabs>
+
+      {/* Show join request button only for non-members */}
+      {!userRole && (
+        <div className="flex justify-end">
+          <Button onClick={() => setShowJoinDialog(true)}>
+            Request to Join
+          </Button>
+        </div>
+      )}
+
+      <JoinRequestDialog
+        startupId={startup._id}
+        open={showJoinDialog}
+        onOpenChange={setShowJoinDialog}
+        onSuccess={onUpdate}
+      />
     </div>
   )
 }

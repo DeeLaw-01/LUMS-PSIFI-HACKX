@@ -1,5 +1,7 @@
 import User from '../models/User.js'
+import Post from '../models/Post.js'
 import bcrypt from 'bcryptjs'
+import mongoose from 'mongoose'
 
 export const updateUser = async (req, res) => {
   try {
@@ -64,11 +66,79 @@ export const updateUser = async (req, res) => {
 
 export const getUserPosts = async (req, res) => {
   try {
-    const posts = await Post.find({ author: req.user.id }).sort({
-      createdAt: -1
-    })
+    const posts = await Post.find({ author: req.params.userId })
+      .sort({ createdAt: -1 })
+      .populate('author', 'username profilePicture')
+      .populate('likes', 'username')
+      .populate('comments.author', 'username profilePicture')
+      .exec()
+
     res.json(posts)
   } catch (error) {
+    console.error('Get user posts error:', error)
+    res.status(500).json({ message: error.message })
+  }
+}
+
+// Get recent users
+export const getRecentUsers = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 5
+    const users = await User
+      .find({ _id: { $ne: req.user.id } })
+      .select('username profilePicture bio role')
+      .sort({ createdAt: -1 })
+      .limit(limit)
+
+    res.json(users)
+  } catch (error) {
+    console.log(users)
+    res.status(500).json({ message: error.message })
+  }
+}
+
+export const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id)
+      .select('-password -settings -email')
+      .populate({
+        path: 'startups.startup',
+        select: 'displayName logo description industry timelineStatus'
+      })
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+
+    res.json(user)
+  } catch (error) {
+    console.error('Get user profile error:', error)
     res.status(500).json({ message: 'Server error' })
+  }
+}
+
+export const getUserStartups = async (req, res) => {
+  try {
+    // If no userId in params, use the authenticated user's id
+    const userId = req.params.userId || req.user.id
+
+    const user = await User.findById(new mongoose.Types.ObjectId(userId))
+      .populate({
+        path: 'startups.startup',
+        populate: {
+          path: 'team.user',
+          select: 'username email profilePicture'
+        }
+      })
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+
+    const startups = user.startups.map(s => s.startup)
+    res.json(startups)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: 'Failed to fetch startups' })
   }
 }

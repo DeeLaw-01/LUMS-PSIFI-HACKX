@@ -56,17 +56,9 @@ export const getStartup = async (req, res) => {
       return res.status(404).json({ message: 'Startup not found' })
     }
 
-    // Check if user is a member
-    const isMember = startup.team.some(
-      member => member.user?._id?.toString() === req.user?._id?.toString()
-    )
-
-    if (!isMember) {
-      return res.status(403).json({ message: 'Not authorized to view this startup' })
-    }
-
     res.status(200).json(startup)
   } catch (error) {
+    console.error('Get startup error:', error)
     res.status(500).json({ message: error.message })
   }
 }
@@ -80,26 +72,28 @@ export const updateStartup = async (req, res) => {
     }
 
     // Check if user is an owner
-    const userStartup = await User.findOne({
-      _id: req.user.id,
-      'startups.startup': startup._id,
-      'startups.role': 'OWNER'
-    })
+    const isOwner = startup.team.some(
+      member => 
+        member.user.toString() === req.user.id && 
+        member.role === 'OWNER'
+    )
 
-    if (!userStartup) {
-      return res.status(403).json({ message: 'Not authorized' })
+    if (!isOwner) {
+      return res.status(403).json({ message: 'Not authorized - must be an owner' })
     }
 
     const updatedStartup = await Startup.findByIdAndUpdate(
       req.params.id,
       { $set: req.body },
       { new: true }
-    )
+    ).populate('team.user', 'username email profilePicture')
+      .populate('posts.author', 'username profilePicture')
+      .populate('joinRequests.user', 'username email profilePicture')
 
     res.json(updatedStartup)
   } catch (error) {
     console.error('Update startup error:', error)
-    res.status(500).json({ message: 'Server error' })
+    res.status(500).json({ message: error.message })
   }
 }
 
@@ -141,19 +135,17 @@ export const deleteStartup = async (req, res) => {
 // Get user's startups
 export const getUserStartups = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id)
-      .populate({
-        path: 'startups.startup',
-        populate: {
-          path: 'team.user',
-          select: 'username email profilePicture'
-        }
-      })
-    
-    const startups = user.startups.map(s => s.startup)
-    res.json(startups)
+    // If a userId is provided in params, use that, otherwise use the authenticated user's id
+    const userId = req.params.userId || req.user.id;
+
+    const startups = await Startup.find({
+      'team.user': userId
+    }).populate('team.user', 'username email profilePicture');
+
+    res.json(startups);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch startups' })
+    console.error('Get user startups error:', error);
+    res.status(500).json({ message: 'Failed to fetch startups' });
   }
 }
 

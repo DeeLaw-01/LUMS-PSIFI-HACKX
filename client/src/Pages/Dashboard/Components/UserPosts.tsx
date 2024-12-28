@@ -27,7 +27,11 @@ const UserPosts = () => {
         }
       })
 
-      setPosts(response.data.posts)
+      if (page === 1) {
+        setPosts(response.data.posts)
+      } else {
+        setPosts(prevPosts => [...prevPosts, ...response.data.posts])
+      }
       setHasMore(response.data.currentPage < response.data.totalPages)
     } catch (error) {
       toast({
@@ -47,6 +51,51 @@ const UserPosts = () => {
 
   const handlePostCreated = (newPost: PostType) => {
     setPosts(prevPosts => [newPost, ...prevPosts])
+  }
+
+  const handlePostLiked = async (postId: string) => {
+    try {
+      const updatedPost = await postService.likePost(postId)
+      setPosts(prevPosts =>
+        prevPosts.map(post => (post._id === postId ? updatedPost : post))
+      )
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to like post',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const handlePostComment = async (postId: string, content: string) => {
+    try {
+      const updatedPost = await postService.commentPost(postId, content)
+      setPosts(prevPosts =>
+        prevPosts.map(post => (post._id === postId ? updatedPost : post))
+      )
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to add comment',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const handlePostSave = async (postId: string) => {
+    try {
+      const updatedPost = await postService.savePost(postId)
+      setPosts(prevPosts =>
+        prevPosts.map(post => (post._id === postId ? updatedPost : post))
+      )
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to save post',
+        variant: 'destructive'
+      })
+    }
   }
 
   if (isLoading && page === 1) {
@@ -90,9 +139,9 @@ const UserPosts = () => {
               onDelete={() => {
                 setPosts(posts.filter(p => p._id !== post._id))
               }}
-              onLike={() => {}}
-              onComment={() => {}}
-              onSave={() => {}}
+              onLike={() => handlePostLiked(post._id)}
+              onComment={(content) => handlePostComment(post._id, content)}
+              onSave={() => handlePostSave(post._id)}
             />
           ))}
           {hasMore && (

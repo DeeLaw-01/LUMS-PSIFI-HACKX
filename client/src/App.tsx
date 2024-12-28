@@ -15,6 +15,9 @@ import JoinStartup from './Pages/Startup/JoinStartup'
 import StartupSection from './Pages/Dashboard/Components/StartupSection'
 import CreateStartup from './Pages/Startup/CreateStartup'
 import StartupPage from './Pages/StartupPage/StartupPage'
+import StartupSettings from './Pages/StartupPage/Sections/StartupSettings'
+import UserProfile from './Pages/Profile/UserProfile'
+import SinglePostPage from '@/Pages/Post/SinglePostPage'
 
 const NAVBAR_EXCLUDED_ROUTES = ['/auth', '/onboarding']
 const FOOTER_EXCLUDED_ROUTES = ['/auth', '/']
@@ -91,6 +94,18 @@ export default function App () {
             path='/startup/:id'
             element={user ? <StartupPage /> : <Navigate to='/auth' replace />}
           />
+        
+          <Route
+            path='/profile/:id'
+            element={user ? <UserProfile /> : <Navigate to='/auth' replace />}
+          />
+
+          {/* New Route for Single Post View */}
+          <Route
+            path='/post/:id'
+            element={<SinglePostPage />}
+          />
+
           {/* Catch all - redirect to home */}
           <Route path='*' element={<Navigate to='/' replace />} />
         </Routes>

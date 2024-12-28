@@ -7,9 +7,10 @@ import UserSettings from './UserSettings'
 
 interface ProfileCardProps {
   user: any
+  isCurrentUser: boolean
 }
 
-const ProfileCard = ({ user }: ProfileCardProps) => {
+const ProfileCard = ({ user, isCurrentUser }: ProfileCardProps) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const settingsRef = useRef<{ checkUnsavedChanges: () => boolean }>()
 
@@ -94,14 +95,14 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
               </div>
             )}
 
-            <Button
+            {isCurrentUser && <Button
               variant='outline'
               className='w-full mt-4 shadow-lg bg-red-500 text-white hover:bg-red-600 dark:hover:bg-white/90 dark:hover:text-black dark:bg-white dark:text-black hover:text-white'
               onClick={() => setIsSettingsOpen(true)}
             >
               <Edit className='w-4 h-4 mr-2' />
               Edit Profile
-            </Button>
+            </Button>}
           </div>
         </div>
       </div>

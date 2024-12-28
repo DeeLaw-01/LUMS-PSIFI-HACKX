@@ -14,7 +14,8 @@ router.post('/', verifyToken, startupController.createStartup)
 router.get('/:id', verifyToken, startupController.getStartup)
 router.put('/:id', verifyToken, startupController.updateStartup)
 router.delete('/:id', verifyToken, startupController.deleteStartup)
-router.get('/user/startups', verifyToken, startupController.getUserStartups)
+router.get('/user', verifyToken, startupController.getUserStartups)
+router.get('/user/:userId', verifyToken, startupController.getUserStartups)
 
 // Team management routes
 router.post('/join/request', verifyToken, startupTeamController.requestToJoin)
