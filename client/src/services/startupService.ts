@@ -310,6 +310,11 @@ export const getAllStartups = async () => {
   return response.data
 }
 
+export const getStartupContent = async (page: number = 1, limit: number = 10) => {
+  const response = await api.get(`/api/startups/content?page=${page}&limit=${limit}`)
+  return response.data
+}
+
 const startupService = {
   createStartup,
   getStartup,
@@ -339,7 +344,8 @@ const startupService = {
   deleteTimelineEvent,
   updateStartup,
   deleteStartup,
-  getAllStartups
+  getAllStartups,
+  getStartupContent
 }
 
 export default startupService

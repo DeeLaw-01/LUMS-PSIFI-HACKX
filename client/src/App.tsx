@@ -15,13 +15,12 @@ import JoinStartup from './Pages/Startup/JoinStartup'
 import StartupSection from './Pages/Dashboard/Components/StartupSection'
 import CreateStartup from './Pages/Startup/CreateStartup'
 import StartupPage from './Pages/StartupPage/StartupPage'
-import StartupSettings from './Pages/StartupPage/Sections/StartupSettings'
 import UserProfile from './Pages/Profile/UserProfile'
 import SinglePostPage from '@/Pages/Post/SinglePostPage'
 import StartupsPage from '@/Pages/Startups/StartupsPage'
 
 const NAVBAR_EXCLUDED_ROUTES = ['/auth', '/onboarding']
-const FOOTER_EXCLUDED_ROUTES = ['/auth', '/']
+const FOOTER_EXCLUDED_ROUTES = ['/auth', '/', '/']
 
 export default function App () {
   const { user, isNewUser } = useAuthStore()

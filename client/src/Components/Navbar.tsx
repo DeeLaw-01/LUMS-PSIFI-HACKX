@@ -8,11 +8,13 @@ import {
   PlusSquare,
   UserCircle,
   LogOut,
-  LayoutDashboard
+  LayoutDashboard,
+  Bell
 } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import { motion, AnimatePresence } from 'framer-motion'
 import SearchBar from './SearchBar'
+import NotificationDropdown from './Navbar/NotificationDropdown'
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -136,6 +138,9 @@ const Navbar = () => {
                 Startups
               </button>
             </div>
+
+            {/* Notifications Dropdown */}
+            <NotificationDropdown />
 
             {/* User Profile Section with Dropdown */}
             <div className='relative' ref={dropdownRef}>

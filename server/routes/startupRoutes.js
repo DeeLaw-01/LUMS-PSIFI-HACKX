@@ -6,42 +6,29 @@ import * as startupProductController from '../controllers/startupProductControll
 import * as startupProjectController from '../controllers/startupProjectController.js'
 import * as startupPostController from '../controllers/startupPostController.js'
 import * as startupTimelineController from '../controllers/startupTimelineController.js'
+import * as notificationController from '../controllers/notificationController.js'
 
 const router = express.Router()
 
 // Startup CRUD routes
-router.get('/', verifyToken, startupController.getAllStartups)
-router.post('/', verifyToken, startupController.createStartup)
-router.get('/:id', verifyToken, startupController.getStartup)
-router.put('/:id', verifyToken, startupController.updateStartup)
-router.delete('/:id', verifyToken, startupController.deleteStartup)
 router.get('/user', verifyToken, startupController.getUserStartups)
 router.get('/user/:userId', verifyToken, startupController.getUserStartups)
+router.get('/', verifyToken, startupController.getAllStartups)
+router.post('/', verifyToken, startupController.createStartup)
 
 // Team management routes
 router.post('/join/request', verifyToken, startupTeamController.requestToJoin)
-router.post(
-  '/join/handle',
-  verifyToken,
-  startupTeamController.handleJoinRequest
-)
-router.post(
-  '/invite/create',
-  verifyToken,
-  startupTeamController.createInviteLink
-)
-router.post(
-  '/join/invite',
-  verifyToken,
-  startupTeamController.joinViaInviteLink
-)
+router.post('/join/handle', verifyToken, startupTeamController.handleJoinRequest)
+router.post('/invite/create', verifyToken, startupTeamController.createInviteLink)
+router.post('/join/invite', verifyToken, startupTeamController.joinViaInviteLink)
 router.put('/member/role', verifyToken, startupTeamController.updateMemberRole)
-router.put(
-  '/member/position',
-  verifyToken,
-  startupTeamController.updateMemberPosition
-)
+router.put('/member/position', verifyToken, startupTeamController.updateMemberPosition)
 router.delete('/member', verifyToken, startupTeamController.removeMember)
+
+// Routes with :id parameter
+router.get('/:id', verifyToken, startupController.getStartup)
+router.put('/:id', verifyToken, startupController.updateStartup)
+router.delete('/:id', verifyToken, startupController.deleteStartup)
 router.get('/:id/team', verifyToken, startupTeamController.getTeamMembers)
 router.get('/:id/requests', verifyToken, startupTeamController.getJoinRequests)
 
@@ -65,5 +52,8 @@ router.get('/:startupId/timeline', verifyToken, startupTimelineController.getTim
 router.post('/:startupId/timeline', verifyToken, startupTimelineController.addTimelineEvent)
 router.put('/:startupId/timeline/:eventId', verifyToken, startupTimelineController.updateTimelineEvent)
 router.delete('/:startupId/timeline/:eventId', verifyToken, startupTimelineController.deleteTimelineEvent)
+
+// Follow/unfollow a startup
+router.post('/:id/follow', verifyToken, notificationController.followStartup)
 
 export default router

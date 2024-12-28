@@ -42,6 +42,16 @@ const StartupSchema = new mongoose.Schema(
         required: true
       }
     },
+    followers: [{
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      },
+      followedAt: {
+        type: Date,
+        default: Date.now
+      }
+    }],
     team: [
       {
         user: {

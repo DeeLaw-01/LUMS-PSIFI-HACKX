@@ -278,3 +278,98 @@ export const getAllStartups = async (req, res) => {
     res.status(500).json({ message: error.message })
   }
 }
+
+// Get startup content (posts, products, timeline events)
+export const getStartupContent = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query
+    const skip = (parseInt(page) - 1) * parseInt(limit)
+
+    const startups = await Startup.find()
+      .populate('team.user', 'username profilePicture')
+      .populate('posts.author', 'username profilePicture')
+      .lean()
+
+    // Collect all content from startups
+    let allContent = []
+
+    for (const startup of startups) {
+      // Add posts with type
+      if (startup.posts && Array.isArray(startup.posts)) {
+        const posts = startup.posts.map(post => ({
+          _id: post._id,
+          title: post.title || '',
+          content: post.content,
+          image: post.image,
+          link: post.link,
+          author: post.author,
+          startup: {
+            _id: startup._id,
+            displayName: startup.displayName,
+            logo: startup.logo
+          },
+          type: 'post',
+          createdAt: post.createdAt || new Date()
+        }))
+        allContent = [...allContent, ...posts]
+      }
+
+      // Add products with type
+      if (startup.products && Array.isArray(startup.products)) {
+        const products = startup.products.map(product => ({
+          _id: product._id,
+          title: product.name,
+          content: product.description,
+          image: product.image,
+          link: product.purchaseLink,
+          startup: {
+            _id: startup._id,
+            displayName: startup.displayName,
+            logo: startup.logo
+          },
+          type: 'product',
+          createdAt: product.createdAt || new Date()
+        }))
+        allContent = [...allContent, ...products]
+      }
+
+      // Add timeline events with type
+      if (startup.timeline && Array.isArray(startup.timeline)) {
+        const timelineEvents = startup.timeline.map(event => ({
+          _id: event._id,
+          title: event.title,
+          content: event.description,
+          startup: {
+            _id: startup._id,
+            displayName: startup.displayName,
+            logo: startup.logo
+          },
+          type: 'timeline',
+          createdAt: event.date || event.createdAt || new Date()
+        }))
+        allContent = [...allContent, ...timelineEvents]
+      }
+    }
+
+    // Sort by createdAt in descending order
+    allContent.sort((a, b) => {
+      const dateA = new Date(a.createdAt)
+      const dateB = new Date(b.createdAt)
+      return dateB.getTime() - dateA.getTime()
+    })
+
+    // Apply pagination
+    const paginatedContent = allContent.slice(skip, skip + parseInt(limit))
+    const total = allContent.length
+
+    res.json({
+      content: paginatedContent,
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(total / parseInt(limit)),
+      totalItems: total
+    })
+  } catch (error) {
+    console.error('Get startup content error:', error)
+    res.status(500).json({ message: error.message })
+  }
+}

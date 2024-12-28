@@ -58,7 +58,7 @@ const UserDashboard = () => {
   }
 
   return (
-    <div className='container h-screen mx-auto px-4 pt-20 pb-10'>
+    <div className='container  mx-auto px-4 pt-20 pb-10'>
       {/* Profile Overview Section */}
       <div className='grid grid-cols-1 lg:grid-cols-12 gap-6'>
         {/* Left Sidebar */}
