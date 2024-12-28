@@ -10,6 +10,7 @@ import * as startupTimelineController from '../controllers/startupTimelineContro
 const router = express.Router()
 
 // Startup CRUD routes
+router.get('/', verifyToken, startupController.getAllStartups)
 router.post('/', verifyToken, startupController.createStartup)
 router.get('/:id', verifyToken, startupController.getStartup)
 router.put('/:id', verifyToken, startupController.updateStartup)

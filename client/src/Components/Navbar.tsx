@@ -130,7 +130,7 @@ const Navbar = () => {
                 Home
               </button>
               <button
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/startups')}
                 className='hover:text-blue-400 transition-colors'
               >
                 Startups

@@ -18,6 +18,7 @@ import StartupPage from './Pages/StartupPage/StartupPage'
 import StartupSettings from './Pages/StartupPage/Sections/StartupSettings'
 import UserProfile from './Pages/Profile/UserProfile'
 import SinglePostPage from '@/Pages/Post/SinglePostPage'
+import StartupsPage from '@/Pages/Startups/StartupsPage'
 
 const NAVBAR_EXCLUDED_ROUTES = ['/auth', '/onboarding']
 const FOOTER_EXCLUDED_ROUTES = ['/auth', '/']
@@ -54,6 +55,10 @@ export default function App () {
                 <Navigate to='/auth' replace />
               )
             }
+          />
+          <Route
+            path='/startups'
+            element={user ? <StartupsPage /> : <Navigate to='/auth' replace />}
           />
           <Route
             path='/saved'

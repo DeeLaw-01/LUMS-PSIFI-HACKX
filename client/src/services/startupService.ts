@@ -305,6 +305,11 @@ export const deleteStartup = async (startupId: string) => {
   return response.data
 }
 
+export const getAllStartups = async () => {
+  const response = await api.get('/api/startups')
+  return response.data
+}
+
 const startupService = {
   createStartup,
   getStartup,
@@ -333,7 +338,8 @@ const startupService = {
   updateTimelineEvent,
   deleteTimelineEvent,
   updateStartup,
-  deleteStartup
+  deleteStartup,
+  getAllStartups
 }
 
 export default startupService

@@ -264,3 +264,17 @@ export const removeMember = async (req, res) => {
     res.status(500).json({ message: 'Server error' })
   }
 }
+
+// Get all startups
+export const getAllStartups = async (req, res) => {
+  try {
+    const startups = await Startup.find()
+      .populate('team.user', 'username profilePicture')
+      .sort({ createdAt: -1 })
+
+    res.status(200).json(startups)
+  } catch (error) {
+    console.error('Get all startups error:', error)
+    res.status(500).json({ message: error.message })
+  }
+}
