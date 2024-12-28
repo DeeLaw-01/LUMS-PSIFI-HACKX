@@ -90,7 +90,8 @@ const StartupSchema = new mongoose.Schema(
       {
         code: {
           type: String,
-          default: undefined
+          required: false,
+          sparse: true
         },
         role: {
           type: String,
@@ -103,25 +104,108 @@ const StartupSchema = new mongoose.Schema(
           ref: 'User'
         }
       }
-    ]
+    ],
+    products: [{
+      name: {
+        type: String,
+        required: true
+      },
+      description: {
+        type: String,
+        required: true
+      },
+      image: String,
+      price: Number,
+      purchaseLink: String,
+      createdAt: {
+        type: Date,
+        default: Date.now
+      }
+    }],
+    projects: [{
+      name: {
+        type: String,
+        required: true
+      },
+      description: {
+        type: String,
+        required: true
+      },
+      image: String,
+      clientName: String,
+      completionDate: Date,
+      testimonial: String,
+      projectUrl: String,
+      createdAt: {
+        type: Date,
+        default: Date.now
+      }
+    }],
+    posts: [{
+      title: {
+        type: String,
+        required: true
+      },
+      content: {
+        type: String,
+        required: true
+      },
+      image: String,
+      link: String,
+      author: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now
+      }
+    }],
+    timeline: [{
+      title: {
+        type: String,
+        required: true
+      },
+      description: {
+        type: String,
+        required: true
+      },
+      date: {
+        type: Date,
+        required: true
+      },
+      type: {
+        type: String,
+        enum: ['MILESTONE', 'UPDATE', 'ACHIEVEMENT'],
+        default: 'UPDATE'
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now
+      }
+    }]
   },
   { timestamps: true }
 )
 
-// Remove duplicate index creation
+// Keep the geospatial index
+StartupSchema.index({ location: '2dsphere' })
+
+// Add a compound index instead
 StartupSchema.index(
-  { 'inviteLinks.code': 1 },
-  {
-    unique: true,
+  { 
+    'inviteLinks.code': 1,
+    'inviteLinks._id': 1 
+  },
+  { 
     sparse: true,
+    unique: true,
     partialFilterExpression: {
-      'inviteLinks.code': { $exists: true, $ne: null }
+      'inviteLinks.code': { $exists: true }
     }
   }
 )
-
-// Keep the geospatial index
-StartupSchema.index({ location: '2dsphere' })
 
 const Startup = mongoose.model('Startup', StartupSchema)
 export default Startup

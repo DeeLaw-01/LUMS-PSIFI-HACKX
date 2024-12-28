@@ -234,7 +234,7 @@ const LoginPage = () => {
                     <div className='w-full border-t border-gray-300'></div>
                   </div>
                   <div className='relative flex justify-center text-sm'>
-                    <span className='px-2 bg-white dark:bg-primary-900 text-gray-500 dark:text-white'>
+                    <span className='px-2 bg-white dark:bg-primary-900 text-gray-500 dark:text-white rounded-md'>
                       Or continue with
                     </span>
                   </div>

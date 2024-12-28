@@ -163,11 +163,23 @@ const StartupOnboarding = () => {
       }
 
       const response = await api.post('api/startups', startupData)
-      //@ts-ignore
-      setUser({
-        ...user,
-        startups: [...(user?.startups || []), response.data]
-      })
+      
+      // Update the user's local state with the new startup
+      if (user) {
+        setUser({
+          ...user,
+          startups: [
+            ...(user.startups || []),
+            {
+              startup: response.data._id,
+              role: 'OWNER',
+              position: 'Founder',
+              joinedAt: new Date()
+            }
+          ]
+        })
+      }
+
       setIsNewUser(false)
       toast({
         title: 'Success',
@@ -177,8 +189,7 @@ const StartupOnboarding = () => {
     } catch (error: any) {
       toast({
         title: 'Error',
-        description:
-          error.response?.data?.message || 'Failed to create startup',
+        description: error.response?.data?.message || 'Failed to create startup',
         variant: 'destructive'
       })
     } finally {

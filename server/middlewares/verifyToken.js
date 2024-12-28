@@ -18,16 +18,21 @@ const verifyToken = async (req, res, next) => {
     let decodedData
 
     if (!token) {
-      res.status(401).json({ message: 'Unauthorized' })
-      return
+      return res.status(401).json({ message: 'Unauthorized' })
     }
 
     if (token && isCustomAuth) {
       decodedData = jwt.verify(token, process.env.JWT_SECRET)
-      req.user = { id: decodedData?.id }
+      req.user = { 
+        id: decodedData?.id,
+        _id: decodedData?.id 
+      }
     } else {
       decodedData = jwt.decode(token)
-      req.user = { id: decodedData?.sub }
+      req.user = { 
+        id: decodedData?.sub,
+        _id: decodedData?.sub
+      }
     }
 
     next()
@@ -39,8 +44,7 @@ const verifyToken = async (req, res, next) => {
     if (error instanceof jwt.TokenExpiredError) {
       return res.status(401).json({ message: 'Token expired' })
     }
-    res.status(401).json({ message: 'Unauthorized' })
-    return
+    return res.status(401).json({ message: 'Unauthorized' })
   }
 }
 

@@ -57,26 +57,36 @@ export const handleJoinRequest = async (
 
 export const createInviteLink = async (
   startupId: string,
-  role: 'EDITOR' | 'VIEWER' = 'VIEWER',
-  expiresInDays: number = 7
+  role: 'EDITOR' | 'VIEWER' = 'VIEWER'
 ) => {
-  const response = await api.post('/api/startups/invite/create', {
-    startupId,
-    role,
-    expiresInDays
-  })
-  return response.data
+  try {
+    const response = await api.post('/api/startups/invite/create', {
+      startupId,
+      role
+    })
+    return response.data
+  } catch (error) {
+    console.error('Create invite link error:', error)
+    throw error
+  }
 }
 
 export const joinViaInviteLink = async (
+  startupId: string,
   inviteCode: string,
-  position?: string
+  position: string = ''
 ) => {
-  const response = await api.post('/api/startups/join/invite', {
-    inviteCode,
-    position
-  })
-  return response.data
+  try {
+    const response = await api.post('/api/startups/join/invite', {
+      startupId,
+      inviteCode,
+      position
+    })
+    return response.data
+  } catch (error) {
+    console.error('Join via invite link error:', error)
+    throw error
+  }
 }
 
 export const updateMemberRole = async (
@@ -122,6 +132,159 @@ export const getJoinRequests = async (startupId: string) => {
   return response.data
 }
 
+// Product Management
+export const addProduct = async (startupId: string, data: {
+  name: string
+  description: string
+  image?: string
+  price?: number
+  purchaseLink?: string
+}) => {
+  const response = await api.post(`/api/startups/${startupId}/products`, data)
+  return response.data
+}
+
+export const updateProduct = async (
+  startupId: string,
+  productId: string,
+  data: {
+    name?: string
+    description?: string
+    image?: string
+    price?: number
+    purchaseLink?: string
+  }
+) => {
+  const response = await api.put(
+    `/api/startups/${startupId}/products/${productId}`,
+    data
+  )
+  return response.data
+}
+
+export const deleteProduct = async (startupId: string, productId: string) => {
+  const response = await api.delete(
+    `/api/startups/${startupId}/products/${productId}`
+  )
+  return response.data
+}
+
+// Project Management
+export const addProject = async (startupId: string, data: {
+  name: string
+  description: string
+  image?: string
+  clientName?: string
+  completionDate?: string
+  testimonial?: string
+  projectUrl?: string
+}) => {
+  const response = await api.post(`/api/startups/${startupId}/projects`, data)
+  return response.data
+}
+
+export const updateProject = async (
+  startupId: string,
+  projectId: string,
+  data: {
+    name?: string
+    description?: string
+    image?: string
+    clientName?: string
+    completionDate?: string
+    testimonial?: string
+    projectUrl?: string
+  }
+) => {
+  const response = await api.put(
+    `/api/startups/${startupId}/projects/${projectId}`,
+    data
+  )
+  return response.data
+}
+
+export const deleteProject = async (startupId: string, projectId: string) => {
+  const response = await api.delete(
+    `/api/startups/${startupId}/projects/${projectId}`
+  )
+  return response.data
+}
+
+// Post Management
+export const addPost = async (startupId: string, data: {
+  title: string
+  content: string
+  image?: string
+  link?: string
+}) => {
+  const response = await api.post(`/api/startups/${startupId}/posts`, data)
+  return response.data
+}
+
+export const updatePost = async (
+  startupId: string,
+  postId: string,
+  data: {
+    title?: string
+    content?: string
+    image?: string
+    link?: string
+  }
+) => {
+  const response = await api.put(
+    `/api/startups/${startupId}/posts/${postId}`,
+    data
+  )
+  return response.data
+}
+
+export const deletePost = async (startupId: string, postId: string) => {
+  const response = await api.delete(
+    `/api/startups/${startupId}/posts/${postId}`
+  )
+  return response.data
+}
+
+// Timeline Management
+export const getTimelineEvents = async (startupId: string) => {
+  const response = await api.get(`/api/startups/${startupId}/timeline`)
+  return response.data
+}
+
+export const addTimelineEvent = async (startupId: string, data: {
+  title: string
+  description: string
+  date: string
+  type: 'MILESTONE' | 'UPDATE' | 'ACHIEVEMENT'
+}) => {
+  const response = await api.post(`/api/startups/${startupId}/timeline`, data)
+  return response.data
+}
+
+export const updateTimelineEvent = async (
+  startupId: string,
+  eventId: string,
+  data: {
+    title?: string
+    description?: string
+    date?: string
+    type?: 'MILESTONE' | 'UPDATE' | 'ACHIEVEMENT'
+  }
+) => {
+  const response = await api.put(
+    `/api/startups/${startupId}/timeline/${eventId}`,
+    data
+  )
+  return response.data
+}
+
+export const deleteTimelineEvent = async (startupId: string, eventId: string) => {
+  const response = await api.delete(
+    `/api/startups/${startupId}/timeline/${eventId}`
+  )
+  return response.data
+}
+
 const startupService = {
   createStartup,
   getStartup,
@@ -135,7 +298,20 @@ const startupService = {
   updateMemberPosition,
   removeMember,
   getTeamMembers,
-  getJoinRequests
+  getJoinRequests,
+  addProduct,
+  updateProduct,
+  deleteProduct,
+  addProject,
+  updateProject,
+  deleteProject,
+  addPost,
+  updatePost,
+  deletePost,
+  getTimelineEvents,
+  addTimelineEvent,
+  updateTimelineEvent,
+  deleteTimelineEvent
 }
 
 export default startupService

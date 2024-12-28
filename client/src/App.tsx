@@ -13,6 +13,8 @@ import UserDashboard from '@/Pages/Dashboard/UserDashboard'
 import StartupOnboarding from './Pages/Onboarding/StartupOnboarding.tsx'
 import JoinStartup from './Pages/Startup/JoinStartup'
 import StartupSection from './Pages/Dashboard/Components/StartupSection'
+import CreateStartup from './Pages/Startup/CreateStartup'
+import StartupPage from './Pages/StartupPage/StartupPage'
 
 const NAVBAR_EXCLUDED_ROUTES = ['/auth', '/onboarding']
 const FOOTER_EXCLUDED_ROUTES = ['/auth', '/']
@@ -78,6 +80,16 @@ export default function App () {
             element={
               user ? <StartupSection /> : <Navigate to='/auth' replace />
             }
+          />
+          <Route
+            path='/startup/create'
+            element={
+              user ? <CreateStartup /> : <Navigate to='/auth' replace />
+            }
+          />
+          <Route
+            path='/startup/:id'
+            element={user ? <StartupPage /> : <Navigate to='/auth' replace />}
           />
           {/* Catch all - redirect to home */}
           <Route path='*' element={<Navigate to='/' replace />} />

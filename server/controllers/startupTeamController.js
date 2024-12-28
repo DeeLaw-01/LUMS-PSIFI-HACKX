@@ -4,7 +4,8 @@ import { nanoid } from 'nanoid'
 
 // Helper function to check if user has required role
 const hasRequiredRole = (startup, userId, requiredRoles) => {
-  const member = startup.team.find(m => m.user.toString() === userId.toString())
+  if (!startup || !userId || !requiredRoles) return false
+  const member = startup.team.find(m => m.user?.toString() === userId?.toString())
   return member && requiredRoles.includes(member.role)
 }
 
@@ -12,7 +13,11 @@ const hasRequiredRole = (startup, userId, requiredRoles) => {
 export const requestToJoin = async (req, res) => {
   try {
     const { startupId, message } = req.body
-    const userId = req.user._id
+    const userId = req.user?._id
+
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' })
+    }
 
     const startup = await Startup.findById(startupId)
     if (!startup) {
@@ -20,7 +25,7 @@ export const requestToJoin = async (req, res) => {
     }
 
     // Check if user is already a member
-    if (startup.team.some(m => m.user.toString() === userId.toString())) {
+    if (startup.team.some(m => m.user?.toString() === userId?.toString())) {
       return res
         .status(400)
         .json({ message: 'Already a member of this startup' })
@@ -29,7 +34,7 @@ export const requestToJoin = async (req, res) => {
     // Check if user already has a pending request
     if (
       startup.joinRequests.some(
-        r => r.user.toString() === userId.toString() && r.status === 'PENDING'
+        r => r.user?.toString() === userId?.toString() && r.status === 'PENDING'
       )
     ) {
       return res.status(400).json({ message: 'Already have a pending request' })
@@ -52,7 +57,11 @@ export const requestToJoin = async (req, res) => {
 export const handleJoinRequest = async (req, res) => {
   try {
     const { startupId, userId, status, position = '' } = req.body
-    const handlerId = req.user._id
+    const handlerId = req.user?._id
+
+    if (!handlerId) {
+      return res.status(401).json({ message: 'User not authenticated' })
+    }
 
     const startup = await Startup.findById(startupId)
     if (!startup) {
@@ -67,7 +76,7 @@ export const handleJoinRequest = async (req, res) => {
     }
 
     const request = startup.joinRequests.find(
-      r => r.user.toString() === userId && r.status === 'PENDING'
+      r => r.user?.toString() === userId && r.status === 'PENDING'
     )
     if (!request) {
       return res.status(404).json({ message: 'Join request not found' })
@@ -109,7 +118,11 @@ export const handleJoinRequest = async (req, res) => {
 export const createInviteLink = async (req, res) => {
   try {
     const { startupId, role = 'VIEWER', expiresInDays = 7 } = req.body
-    const userId = req.user._id
+    const userId = req.user?._id || req.user?.id
+
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' })
+    }
 
     const startup = await Startup.findById(startupId)
     if (!startup) {
@@ -145,7 +158,11 @@ export const createInviteLink = async (req, res) => {
 export const joinViaInviteLink = async (req, res) => {
   try {
     const { startupId, inviteCode, position = '' } = req.body
-    const userId = req.user._id
+    const userId = req.user?._id
+
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' })
+    }
 
     const startup = await Startup.findById(startupId)
     if (!startup) {
@@ -163,7 +180,7 @@ export const joinViaInviteLink = async (req, res) => {
     }
 
     // Check if user is already a member
-    if (startup.team.some(m => m.user.toString() === userId.toString())) {
+    if (startup.team.some(m => m.user?.toString() === userId?.toString())) {
       return res
         .status(400)
         .json({ message: 'Already a member of this startup' })
@@ -200,7 +217,11 @@ export const joinViaInviteLink = async (req, res) => {
 export const updateMemberRole = async (req, res) => {
   try {
     const { startupId, userId, role } = req.body
-    const updaterId = req.user._id
+    const updaterId = req.user?._id
+
+    if (!updaterId) {
+      return res.status(401).json({ message: 'User not authenticated' })
+    }
 
     const startup = await Startup.findById(startupId)
     if (!startup) {
@@ -216,7 +237,7 @@ export const updateMemberRole = async (req, res) => {
 
     // Cannot change role of another OWNER
     const targetMember = startup.team.find(
-      m => m.user.toString() === userId.toString()
+      m => m.user?.toString() === userId?.toString()
     )
     if (!targetMember) {
       return res.status(404).json({ message: 'Member not found' })
@@ -246,7 +267,11 @@ export const updateMemberRole = async (req, res) => {
 export const updateMemberPosition = async (req, res) => {
   try {
     const { startupId, userId, position } = req.body
-    const updaterId = req.user._id
+    const updaterId = req.user?._id
+
+    if (!updaterId) {
+      return res.status(401).json({ message: 'User not authenticated' })
+    }
 
     const startup = await Startup.findById(startupId)
     if (!startup) {
@@ -261,7 +286,7 @@ export const updateMemberPosition = async (req, res) => {
     }
 
     const member = startup.team.find(
-      m => m.user.toString() === userId.toString()
+      m => m.user?.toString() === userId?.toString()
     )
     if (!member) {
       return res.status(404).json({ message: 'Member not found' })
@@ -287,7 +312,11 @@ export const updateMemberPosition = async (req, res) => {
 export const removeMember = async (req, res) => {
   try {
     const { startupId, userId } = req.body
-    const removerId = req.user._id
+    const removerId = req.user?._id
+
+    if (!removerId) {
+      return res.status(401).json({ message: 'User not authenticated' })
+    }
 
     const startup = await Startup.findById(startupId)
     if (!startup) {
@@ -302,7 +331,7 @@ export const removeMember = async (req, res) => {
     }
 
     const memberToRemove = startup.team.find(
-      m => m.user.toString() === userId.toString()
+      m => m.user?.toString() === userId?.toString()
     )
     if (!memberToRemove) {
       return res.status(404).json({ message: 'Member not found' })
@@ -315,7 +344,7 @@ export const removeMember = async (req, res) => {
 
     // Remove from startup team
     startup.team = startup.team.filter(
-      m => m.user.toString() !== userId.toString()
+      m => m.user?.toString() !== userId?.toString()
     )
 
     // Remove from user's startups array
@@ -334,7 +363,11 @@ export const removeMember = async (req, res) => {
 export const getTeamMembers = async (req, res) => {
   try {
     const { startupId } = req.params
-    const userId = req.user._id
+    const userId = req.user?._id
+
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' })
+    }
 
     const startup = await Startup.findById(startupId).populate(
       'team.user',
@@ -345,7 +378,7 @@ export const getTeamMembers = async (req, res) => {
     }
 
     // Check if user is a member
-    if (!startup.team.some(m => m.user._id.toString() === userId.toString())) {
+    if (!startup.team.some(m => m.user?._id?.toString() === userId?.toString())) {
       return res
         .status(403)
         .json({ message: 'Not authorized to view team members' })
@@ -361,7 +394,11 @@ export const getTeamMembers = async (req, res) => {
 export const getJoinRequests = async (req, res) => {
   try {
     const { startupId } = req.params
-    const userId = req.user._id
+    const userId = req.user?._id
+
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' })
+    }
 
     const startup = await Startup.findById(startupId).populate(
       'joinRequests.user',

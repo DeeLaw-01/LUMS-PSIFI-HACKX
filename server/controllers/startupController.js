@@ -7,13 +7,30 @@ export const createStartup = async (req, res) => {
   try {
     const startupData = {
       ...req.body,
-      team: req.body.team.map(member => ({
-        ...member,
-        user: new mongoose.Types.ObjectId(member.user)
-      }))
+      team: [
+        {
+          user: req.user.id,
+          role: 'OWNER',
+          position: 'Founder',
+          joinedAt: new Date()
+        }
+      ]
     }
 
     const startup = await Startup.create(startupData)
+    
+    // Add startup to user's startups array
+    await User.findByIdAndUpdate(req.user.id, {
+      $push: {
+        startups: {
+          startup: startup._id,
+          role: 'OWNER',
+          position: 'Founder',
+          joinedAt: new Date()
+        }
+      }
+    })
+
     await startup.populate('team.user', 'username email profilePicture')
 
     res.status(201).json(startup)
@@ -29,19 +46,28 @@ export const createStartup = async (req, res) => {
 // Get startup by ID
 export const getStartup = async (req, res) => {
   try {
-    const startup = await Startup.findById(req.params.id).populate(
-      'team',
-      'username profilePicture'
-    )
+    const startup = await Startup.findById(req.params.id)
+      .populate('team.user', 'username email profilePicture')
+      .populate('posts.author', 'username profilePicture')
+      .populate('joinRequests.user', 'username email profilePicture')
+      .populate('inviteLinks.createdBy', 'username')
 
     if (!startup) {
       return res.status(404).json({ message: 'Startup not found' })
     }
 
-    res.json(startup)
+    // Check if user is a member
+    const isMember = startup.team.some(
+      member => member.user?._id?.toString() === req.user?._id?.toString()
+    )
+
+    if (!isMember) {
+      return res.status(403).json({ message: 'Not authorized to view this startup' })
+    }
+
+    res.status(200).json(startup)
   } catch (error) {
-    console.error('Get startup error:', error)
-    res.status(500).json({ message: 'Server error' })
+    res.status(500).json({ message: error.message })
   }
 }
 
@@ -116,13 +142,18 @@ export const deleteStartup = async (req, res) => {
 export const getUserStartups = async (req, res) => {
   try {
     const user = await User.findById(req.user.id)
-      .populate('startups.startup')
-      .select('startups')
-
-    res.json(user.startups)
+      .populate({
+        path: 'startups.startup',
+        populate: {
+          path: 'team.user',
+          select: 'username email profilePicture'
+        }
+      })
+    
+    const startups = user.startups.map(s => s.startup)
+    res.json(startups)
   } catch (error) {
-    console.error('Get user startups error:', error)
-    res.status(500).json({ message: 'Server error' })
+    res.status(500).json({ message: 'Failed to fetch startups' })
   }
 }
 

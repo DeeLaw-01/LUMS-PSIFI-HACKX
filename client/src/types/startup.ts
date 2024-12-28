@@ -17,12 +17,13 @@ export interface JoinRequest {
     email: string
     profilePicture?: string
   }
-  message?: string
+  message: string
   status: 'PENDING' | 'ACCEPTED' | 'REJECTED'
   requestedAt: Date
 }
 
 export interface InviteLink {
+  _id: string
   code: string
   role: 'EDITOR' | 'VIEWER'
   expiresAt: Date
@@ -32,9 +33,45 @@ export interface InviteLink {
   }
 }
 
+export interface Product {
+  _id: string
+  name: string
+  description: string
+  image?: string
+  price?: number
+  purchaseLink?: string
+  createdAt: Date
+}
+
+export interface Project {
+  _id: string
+  title: string
+  description: string
+  image?: string
+  clientName?: string
+  completionDate?: Date
+  testimonial?: string
+  projectUrl?: string
+  createdAt: Date
+}
+
+export interface Post {
+  _id: string
+  title: string
+  content: string
+  image?: string
+  link?: string
+  author: {
+    _id: string
+    username: string
+    profilePicture?: string
+  }
+  createdAt: Date
+}
+
 export interface Startup {
   _id: string
-  logo: string
+  logo?: string
   displayName: string
   description: string
   industry: 'SERVICE_BASED' | 'PRODUCT_BASED' | 'HYBRID'
@@ -52,6 +89,9 @@ export interface Startup {
   team: TeamMember[]
   joinRequests: JoinRequest[]
   inviteLinks: InviteLink[]
+  products: Product[]
+  projects: Project[]
+  posts: Post[]
   createdAt: Date
   updatedAt: Date
 }

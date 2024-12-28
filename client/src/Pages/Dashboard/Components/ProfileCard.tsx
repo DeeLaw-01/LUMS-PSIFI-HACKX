@@ -96,7 +96,7 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
 
             <Button
               variant='outline'
-              className='w-full mt-4'
+              className='w-full mt-4 shadow-lg bg-red-500 text-white hover:bg-red-600 dark:hover:bg-white/90 dark:hover:text-black dark:bg-white dark:text-black hover:text-white'
               onClick={() => setIsSettingsOpen(true)}
             >
               <Edit className='w-4 h-4 mr-2' />
