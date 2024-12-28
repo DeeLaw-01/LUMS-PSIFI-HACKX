@@ -19,6 +19,9 @@ router.post('/', verifyToken, startupController.createStartup)
 // Add search route
 router.get('/search', verifyToken, startupController.searchStartups)
 
+// Add news feed route
+router.get('/news', verifyToken, startupController.getStartupNews)
+
 // Team management routes
 router.post('/join/request', verifyToken, startupTeamController.requestToJoin)
 router.post('/join/handle', verifyToken, startupTeamController.handleJoinRequest)

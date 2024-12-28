@@ -315,6 +315,11 @@ export const getStartupContent = async (page: number = 1, limit: number = 10) =>
   return response.data
 }
 
+export const getStartupNews = async (page: number = 1, limit: number = 10) => {
+  const response = await api.get(`/api/startups/news?page=${page}&limit=${limit}`)
+  return response.data
+}
+
 const startupService = {
   createStartup,
   getStartup,
@@ -345,7 +350,8 @@ const startupService = {
   updateStartup,
   deleteStartup,
   getAllStartups,
-  getStartupContent
+  getStartupContent,
+  getStartupNews
 }
 
 export default startupService

@@ -11,6 +11,7 @@ import { useAuthStore } from '../store/useAuthStore'
 import CreatePost from './CreatePost'
 import { Tabs, TabsList, TabsTrigger } from '@/Components/ui/tabs'
 import { Building2, Newspaper } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
 
 export interface FeedRef {
   refreshFeed: () => void
@@ -47,6 +48,7 @@ const Feed = forwardRef<FeedRef>((props, ref) => {
   const [hasMore, setHasMore] = useState(true)
   const ITEMS_PER_PAGE = 10
   const { user } = useAuthStore()
+  const { toast } = useToast()
 
   const fetchPosts = async () => {
     try {
@@ -58,6 +60,11 @@ const Feed = forwardRef<FeedRef>((props, ref) => {
       setHasMore(response.totalPosts > page * ITEMS_PER_PAGE)
     } catch (error) {
       console.error('Error fetching posts:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch posts',
+        variant: 'destructive'
+      })
     } finally {
       setLoading(false)
     }
@@ -65,18 +72,23 @@ const Feed = forwardRef<FeedRef>((props, ref) => {
 
   const fetchStartupContent = async () => {
     try {
-      setLoading(true)
-      const response = await startupService.getStartupContent(page, ITEMS_PER_PAGE)
+      setLoading(true);
+      const response = await startupService.getStartupNews(page, ITEMS_PER_PAGE);
       setStartupContent(prevContent =>
         page === 1 ? response.content : [...prevContent, ...response.content]
-      )
-      setHasMore(response.totalItems > page * ITEMS_PER_PAGE)
+      );
+      setHasMore(response.totalItems > page * ITEMS_PER_PAGE);
     } catch (error) {
-      console.error('Error fetching startup content:', error)
+      console.error('Error fetching startup news:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch startup news',
+        variant: 'destructive'
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     setPage(1)
