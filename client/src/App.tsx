@@ -25,6 +25,7 @@ const FOOTER_EXCLUDED_ROUTES = ['/auth', '/', '/']
 export default function App () {
   const { user, isNewUser } = useAuthStore()
   const location = useLocation()
+  
 
   const showNavbar = !NAVBAR_EXCLUDED_ROUTES.includes(location.pathname)
   const showFooter = !FOOTER_EXCLUDED_ROUTES.includes(location.pathname)

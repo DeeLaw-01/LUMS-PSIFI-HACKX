@@ -159,6 +159,15 @@ const postService = {
       `/posts/${postId}/comments/${commentId}/replies?page=${page}&limit=${limit}`
     )
     return response.data
+  },
+
+  getUserPosts: async (
+    userId: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<PostsResponse> => {
+    const response = await api.get(`/posts/user/${userId}?page=${page}&limit=${limit}`)
+    return response.data
   }
 }
 

@@ -418,23 +418,31 @@ export const searchStartups = async (req, res) => {
 // Get startup news (posts, products, timeline events) from followed startups
 export const getStartupNews = async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 10, followingOnly = true } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // First get the startups that the user follows
-    const user = await User.findById(req.user._id).select('startups');
-    const followedStartups = await Startup.find({ 
-      'followers.user': req.user._id 
-    })
-    .populate('team.user', 'username profilePicture')
-    .populate('posts.author', 'username profilePicture')
-    .select('displayName logo posts products timeline')
-    .lean();
+    // Get startups based on followingOnly parameter
+    let startups;
+    if (followingOnly === 'true') {
+      startups = await Startup.find({ 
+        'followers.user': req.user._id 
+      })
+      .populate('team.user', 'username profilePicture')
+      .populate('posts.author', 'username profilePicture')
+      .select('displayName logo posts products timeline')
+      .lean();
+    } else {
+      startups = await Startup.find()
+      .populate('team.user', 'username profilePicture')
+      .populate('posts.author', 'username profilePicture')
+      .select('displayName logo posts products timeline')
+      .lean();
+    }
 
-    // Collect all content from followed startups
+    // Collect all content from startups
     let allContent = [];
 
-    for (const startup of followedStartups) {
+    for (const startup of startups) {
       if (!startup || !startup._id) continue;
 
       const startupInfo = {
@@ -514,7 +522,7 @@ export const getStartupNews = async (req, res) => {
       currentPage: parseInt(page),
       totalPages: Math.ceil(total / parseInt(limit)),
       totalItems: total,
-      followedStartupsCount: followedStartups.length
+      followedStartupsCount: startups.length
     });
   } catch (error) {
     console.error('Get startup news error:', error);

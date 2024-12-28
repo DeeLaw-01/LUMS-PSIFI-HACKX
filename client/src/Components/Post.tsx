@@ -655,7 +655,10 @@ const Post = ({ post, onLike, onDelete, onComment, onSave }: PostProps) => {
             disabled={isLiking}
           >
             <ThumbsUp
-              className={cn('w-5 h-5 ', post.isLiked && ' scale-110')}
+              className={cn(
+                'w-5 h-5',
+                post.isLiked && 'fill-current scale-110'
+              )}
             />
             <span>{post.likes}</span>
           </button>

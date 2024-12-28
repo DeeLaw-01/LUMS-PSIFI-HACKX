@@ -36,8 +36,18 @@ const UserDashboard = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Redirect anonymous users to auth page
+    if (user?.isAnonymous) {
+      navigate('/auth')
+      toast({
+        title: 'Authentication Required',
+        description: 'Please sign in to access your dashboard',
+        variant: 'default'
+      })
+      return
+    }
     fetchStartups()
-  }, [])
+  }, [user])
 
   const fetchStartups = async () => {
     try {
@@ -46,19 +56,18 @@ const UserDashboard = () => {
       setStartups(data)
     } catch (error: any) {
       console.log(error)
-      // toast({
-      //   title: 'Error from startup',
-      //   description:
-      //     error.response?.data?.message || 'Failed to fetch startups',
-      //   variant: 'destructive'
-      // })
     } finally {
       setLoading(false)
     }
   }
 
+  // Prevent rendering for anonymous users
+  if (user?.isAnonymous) {
+    return null
+  }
+
   return (
-    <div className='container  mx-auto px-4 pt-20 pb-10'>
+    <div className='container  mx-auto px-4 pt-20 pb-10 min-h-screen'>
       {/* Profile Overview Section */}
       <div className='grid grid-cols-1 lg:grid-cols-12 gap-6'>
         {/* Left Sidebar */}

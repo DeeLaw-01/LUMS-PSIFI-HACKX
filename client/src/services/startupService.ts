@@ -315,8 +315,23 @@ export const getStartupContent = async (page: number = 1, limit: number = 10) =>
   return response.data
 }
 
-export const getStartupNews = async (page: number = 1, limit: number = 10) => {
-  const response = await api.get(`/api/startups/news?page=${page}&limit=${limit}`)
+export const getStartupNews = async (
+  page: number = 1,
+  limit: number = 10,
+  followingOnly: boolean = true
+): Promise<{
+  content: any[]
+  currentPage: number
+  totalPages: number
+  totalItems: number
+}> => {
+  const response = await api.get('/api/startups/news', {
+    params: {
+      page,
+      limit,
+      followingOnly
+    }
+  })
   return response.data
 }
 

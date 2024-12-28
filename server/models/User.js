@@ -11,14 +11,34 @@ const UserSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      required: true,
-      unique: true,
+      required: function() {
+        return !this.isAnonymous;
+      },
+      index: {
+        unique: true,
+        sparse: true,
+        partialFilterExpression: { isAnonymous: false }
+      },
       trim: true,
       lowercase: true
     },
     password: {
       type: String,
-      required: true
+      required: function() {
+        return !this.isAnonymous;
+      }
+    },
+    isAnonymous: {
+      type: Boolean,
+      default: false
+    },
+    anonymousId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      default: function() {
+        return this.isAnonymous ? `anon_${new mongoose.Types.ObjectId().toString()}` : undefined;
+      }
     },
     bio: {
       type: String,
@@ -45,6 +65,46 @@ const UserSchema = new mongoose.Schema(
         default: true
       },
       darkMode: {
+        type: Boolean,
+        default: true
+      }
+    },
+    permissions: {
+      canComment: {
+        type: Boolean,
+        default: function() {
+          return !this.isAnonymous;
+        }
+      },
+      canMessage: {
+        type: Boolean,
+        default: function() {
+          return !this.isAnonymous;
+        }
+      },
+      canCreateStartup: {
+        type: Boolean,
+        default: function() {
+          return !this.isAnonymous;
+        }
+      },
+      canFollowStartup: {
+        type: Boolean,
+        default: function() {
+          return !this.isAnonymous;
+        }
+      },
+      canJoinStartup: {
+        type: Boolean,
+        default: function() {
+          return !this.isAnonymous;
+        }
+      },
+      canLike: {
+        type: Boolean,
+        default: true
+      },
+      canSave: {
         type: Boolean,
         default: true
       }
@@ -82,7 +142,7 @@ const UserSchema = new mongoose.Schema(
 
 // Hash password before saving
 UserSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next()
+  if (!this.isModified('password') || this.isAnonymous) return next()
 
   try {
     const salt = await bcrypt.genSalt(10)
@@ -95,6 +155,7 @@ UserSchema.pre('save', async function (next) {
 
 // Method to compare password
 UserSchema.methods.comparePassword = async function (candidatePassword) {
+  if (this.isAnonymous) return false
   try {
     return await bcrypt.compare(candidatePassword, this.password)
   } catch (error) {

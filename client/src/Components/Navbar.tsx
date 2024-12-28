@@ -9,7 +9,7 @@ import {
   UserCircle,
   LogOut,
   LayoutDashboard,
-  Bell
+  
 } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -181,7 +181,7 @@ const Navbar = () => {
                       </button>
                       <button
                         onClick={handleLogout}
-                        className='flex items-center w-full px-4 py-2 text-sm dark:text-red-500 text-red-500 dark:hover:bg-primary-700 hover:bg-red-700 hover:text-red-400'
+                        className='flex items-center w-full px-4 py-2 text-sm dark:text-red-500 text-red-500 dark:hover:bg-primary-700 hover:bg-red-700 hover:text-white'
                       >
                         <LogOut className='w-4 h-4 mr-2' />
                         Logout

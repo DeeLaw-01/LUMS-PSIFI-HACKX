@@ -10,8 +10,9 @@ import startupService from '../services/startupService'
 import { useAuthStore } from '../store/useAuthStore'
 import CreatePost from './CreatePost'
 import { Tabs, TabsList, TabsTrigger } from '@/Components/ui/tabs'
-import { Building2, Newspaper } from 'lucide-react'
+import { Building2, Newspaper, Clock, Heart } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { Button } from './ui/button'
 
 export interface FeedRef {
   refreshFeed: () => void
@@ -41,6 +42,7 @@ interface StartupContent {
 
 const Feed = forwardRef<FeedRef>((props, ref) => {
   const [feedType, setFeedType] = useState<FeedType>('posts')
+  const [startupView, setStartupView] = useState<'following' | 'recent'>('following')
   const [posts, setPosts] = useState<PostType[]>([])
   const [startupContent, setStartupContent] = useState<StartupContent[]>([])
   const [page, setPage] = useState(1)
@@ -73,7 +75,11 @@ const Feed = forwardRef<FeedRef>((props, ref) => {
   const fetchStartupContent = async () => {
     try {
       setLoading(true);
-      const response = await startupService.getStartupNews(page, ITEMS_PER_PAGE);
+      const response = await startupService.getStartupNews(
+        page, 
+        ITEMS_PER_PAGE,
+        startupView === 'following'
+      );
       setStartupContent(prevContent =>
         page === 1 ? response.content : [...prevContent, ...response.content]
       );
@@ -98,7 +104,7 @@ const Feed = forwardRef<FeedRef>((props, ref) => {
     } else {
       fetchStartupContent()
     }
-  }, [feedType])
+  }, [feedType, startupView])
 
   useEffect(() => {
     if (feedType === 'posts') {
@@ -252,6 +258,29 @@ const Feed = forwardRef<FeedRef>((props, ref) => {
 
       {feedType === 'posts' && <CreatePost onPostCreated={handlePostCreated} />}
 
+      {feedType === 'startup' && (
+        <div className="flex justify-center gap-2 mb-4">
+          <Button
+            variant={startupView === 'following' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setStartupView('following')}
+            className="flex items-center gap-2"
+          >
+            <Heart className="w-4 h-4" />
+            Following
+          </Button>
+          <Button
+            variant={startupView === 'recent' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setStartupView('recent')}
+            className="flex items-center gap-2"
+          >
+            <Clock className="w-4 h-4" />
+            Recent
+          </Button>
+        </div>
+      )}
+
       <div className="space-y-4">
         {feedType === 'posts' ? (
           posts.map(post => (
@@ -280,19 +309,34 @@ const Feed = forwardRef<FeedRef>((props, ref) => {
             />
           ))
         ) : (
-          startupContent.map(content => (
-            <div key={`${content.type}-${content._id}`}>
-              {renderStartupContent(content)}
-            </div>
-          ))
+          <>
+            {startupContent.length === 0 && !loading ? (
+              <div className="text-center text-muted-foreground py-8">
+                {startupView === 'following' 
+                  ? "You're not following any startups yet."
+                  : "No startup news available."}
+              </div>
+            ) : (
+              startupContent.map(content => (
+                <div key={`${content.type}-${content._id}`}>
+                  {renderStartupContent(content)}
+                </div>
+              ))
+            )}
+          </>
         )}
       </div>
 
-      {loading && <div className='text-center text-gray-400'>Loading...</div>}
+      {loading && (
+        <div className='flex justify-center py-4'>
+          <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-red-500'></div>
+        </div>
+      )}
+      
       {!loading && hasMore && (
         <button
           onClick={handleLoadMore}
-          className='w-full py-2 text-blue-400 hover:text-blue-300 transition-colors'
+          className='w-full py-2 text-red-500 hover:text-red-600 transition-colors'
         >
           Load More
         </button>

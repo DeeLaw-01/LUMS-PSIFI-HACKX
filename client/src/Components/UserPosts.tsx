@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { getUserPosts } from '@/services/userService'
 import { useToast } from '@/hooks/use-toast'
 import { Loader2 } from 'lucide-react'
 import { Card } from '@/Components/ui/card'
@@ -14,18 +13,21 @@ interface UserPostsProps {
 const UserPosts = ({ userId }: UserPostsProps) => {
   const [posts, setPosts] = useState<PostType[]>([])
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
   const { toast } = useToast()
   const { user } = useAuthStore()
-
-  useEffect(() => {
-    fetchPosts()
-  }, [userId])
 
   const fetchPosts = async () => {
     try {
       setLoading(true)
-      const data = await getUserPosts(userId)
-      setPosts(data)
+      const response = await postService.getUserPosts(userId, page)
+      if (page === 1) {
+        setPosts(response.posts)
+      } else {
+        setPosts(prev => [...prev, ...response.posts])
+      }
+      setHasMore(page < response.totalPages)
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -37,6 +39,16 @@ const UserPosts = ({ userId }: UserPostsProps) => {
     }
   }
 
+  useEffect(() => {
+    setPage(1)
+    setPosts([])
+    fetchPosts()
+  }, [userId])
+
+  useEffect(() => {
+    fetchPosts()
+  }, [page])
+
   const handlePostLiked = async (postId: string) => {
     try {
       const updatedPost = await postService.likePost(postId)
@@ -44,7 +56,11 @@ const UserPosts = ({ userId }: UserPostsProps) => {
         prevPosts.map(post => (post._id === postId ? updatedPost : post))
       )
     } catch (error) {
-      console.error('Error liking post:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to like post',
+        variant: 'destructive'
+      })
     }
   }
 
@@ -55,7 +71,11 @@ const UserPosts = ({ userId }: UserPostsProps) => {
         prevPosts.map(post => (post._id === postId ? updatedPost : post))
       )
     } catch (error) {
-      console.error('Error commenting on post:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to add comment',
+        variant: 'destructive'
+      })
     }
   }
 
@@ -66,7 +86,11 @@ const UserPosts = ({ userId }: UserPostsProps) => {
         prevPosts.map(post => (post._id === postId ? updatedPost : post))
       )
     } catch (error) {
-      console.error('Error saving post:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to save post',
+        variant: 'destructive'
+      })
     }
   }
 
@@ -74,20 +98,28 @@ const UserPosts = ({ userId }: UserPostsProps) => {
     try {
       await postService.deletePost(postId)
       setPosts(prevPosts => prevPosts.filter(post => post._id !== postId))
+      toast({
+        title: 'Success',
+        description: 'Post deleted successfully'
+      })
     } catch (error) {
-      console.error('Error deleting post:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to delete post',
+        variant: 'destructive'
+      })
     }
   }
 
-  if (loading) {
+  if (loading && page === 1) {
     return (
       <div className='flex justify-center p-8'>
-        <Loader2 className='w-6 h-6 animate-spin' />
+        <Loader2 className='w-6 h-6 animate-spin text-red-500' />
       </div>
     )
   }
 
-  if (posts.length === 0) {
+  if (posts.length === 0 && !loading) {
     return (
       <Card className='p-8 text-center text-muted-foreground'>
         No posts yet
@@ -122,6 +154,21 @@ const UserPosts = ({ userId }: UserPostsProps) => {
           onDelete={() => handlePostDeleted(post._id)}
         />
       ))}
+
+      {hasMore && !loading && (
+        <button
+          onClick={() => setPage(p => p + 1)}
+          className='w-full py-2 text-red-500 hover:text-red-600 transition-colors'
+        >
+          Load More
+        </button>
+      )}
+
+      {loading && page > 1 && (
+        <div className='flex justify-center py-4'>
+          <Loader2 className='w-6 h-6 animate-spin text-red-500' />
+        </div>
+      )}
     </div>
   )
 }

@@ -151,6 +151,33 @@ const LoginPage = () => {
     })
   }
 
+  const handleAnonymousLogin = async () => {
+    try {
+      setIsLoading(true)
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/anonymous`
+      )
+      setUser(response.data.user)
+      setToken(response.data.token)
+      setIsNewUser(false)
+      navigate('/')
+      
+      toast({
+        title: 'Welcome!',
+        description: 'You are now browsing as an anonymous user'
+      })
+    } catch (error: any) {
+      console.error('Anonymous login error:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to create anonymous session',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const pageTransition = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
@@ -240,7 +267,7 @@ const LoginPage = () => {
                   </div>
                 </div>
 
-                <div className='mt-6'>
+                <div className='mt-6 space-y-4'>
                   <div className='flex justify-center'>
                     <GoogleLogin
                       onSuccess={credentialResponse => {
@@ -250,6 +277,17 @@ const LoginPage = () => {
                         handleGoogleFailure()
                       }}
                     />
+                  </div>
+                  
+                  <div className='flex justify-center'>
+                    <Button
+                      onClick={handleAnonymousLogin}
+                      disabled={isLoading}
+                      variant="outline"
+                      className='w-full'
+                    >
+                      {isLoading ? 'Loading...' : 'No thanks, just browsing'}
+                    </Button>
                   </div>
                 </div>
               </div>

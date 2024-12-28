@@ -62,7 +62,7 @@ const UserProfile = () => {
   }
 
   return (
-    <div className='container mx-auto px-4 py-8 mt-16 h-screen'>
+    <div className='container mx-auto px-4 py-8 mt-16 min-h-screen'>
       <div className='grid grid-cols-1 lg:grid-cols-12 gap-6'>
         {/* Left Column - Profile Info */}
         <div className='lg:col-span-3'>
